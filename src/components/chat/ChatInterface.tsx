@@ -4,6 +4,7 @@ import { api } from "../../../convex/_generated/api";
 import { ChatSidebar } from "./ChatSidebar";
 import { ChatWindow } from "./ChatWindow";
 import { Id } from "../../../convex/_generated/dataModel";
+import { useChatPrefetch } from "../../hooks/useChatPrefetch";
 
 export const ChatInterface = () => {
   const [selectedChatId, setSelectedChatId] = useState<Id<"chats"> | null>(null);
@@ -11,6 +12,14 @@ export const ChatInterface = () => {
 
   const chats = useQuery(api.chats.listChats) || [];
   const createChat = useMutation(api.chats.createChat);
+
+  // Prefetch data for top 10 chats when sidebar is open
+  const chatIds = chats.map(chat => chat._id);
+  const { getChatData, isPrefetched, isLoading: isPrefetchLoading } = useChatPrefetch({
+    enabled: sidebarOpen,
+    chatIds,
+    maxChats: 10,
+  });
 
   const handleCreateChat = async (): Promise<void> => {
     try {
@@ -41,12 +50,17 @@ export const ChatInterface = () => {
           onSelectChat={handleSelectChat}
           onCreateChat={handleCreateChat}
           onToggleSidebar={toggleSidebar}
+          sidebarOpen={sidebarOpen}
+          getChatData={getChatData}
+          isPrefetched={isPrefetched}
+          isPrefetchLoading={isPrefetchLoading}
         />
       )}
       <ChatWindow
         chatId={selectedChatId}
         onToggleSidebar={toggleSidebar}
         sidebarOpen={sidebarOpen}
+        prefetchedChatData={selectedChatId ? getChatData(selectedChatId) : undefined}
       />
     </div>
   );
