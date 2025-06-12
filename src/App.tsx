@@ -40,8 +40,7 @@ function Content() {
   return (
     <div className="flex flex-col gap-section">
       <div className="text-center">
-        <h1 className="text-5xl font-bold text-primary mb-4">AI Chat with Chef</h1>
-        <p className="text-xl text-secondary">Sign in with GitHub to start chatting with AI</p>
+        <h1 className="text-5xl font-bold text-primary mb-4">Cook with Chef</h1>
       </div>
       <SignInForm />
     </div>

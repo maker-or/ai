@@ -12,7 +12,7 @@ const applicationTables = {
     shareId: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
-    pinned : v.boolean(),
+    pinned: v.boolean(),
   })
     .index("by_user", ["userId"])
     .index("by_share_id", ["shareId"])
@@ -20,6 +20,14 @@ const applicationTables = {
       searchField: "title",
       filterFields: ["userId"],
     }),
+
+  users: defineTable({
+    email: v.optional(v.string()),
+    emailVerificationTime: v.optional(v.float64()),
+    image: v.optional(v.string()),
+    name: v.optional(v.string()),
+    prompt: v.optional(v.string()),
+  }).index("email", ["email"]),
 
   messages: defineTable({
     chatId: v.id("chats"),

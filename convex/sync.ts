@@ -1,7 +1,8 @@
+// convex/syncState.ts
+
 import { v } from "convex/values";
-import { query, mutation, internalMutation } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { Id } from "./_generated/dataModel";
 
 // Real-time sync for multiple instances
 export const getSyncState = query({
@@ -42,6 +43,11 @@ export const updateSyncState = mutation({
       throw new Error("Unauthorized");
     }
 
+    // Filter out undefined values from typingUsers
+    const typingUsers = (args.typingUsers ?? []).filter(
+      (name): name is string => typeof name === "string",
+    );
+
     // Update or create sync state
     const existingState = await ctx.db
       .query("syncStates")
@@ -52,7 +58,7 @@ export const updateSyncState = mutation({
       chatId: args.chatId,
       lastMessageId: args.lastMessageId,
       activeUsers: args.activeUsers,
-      typingUsers: args.typingUsers,
+      typingUsers,
       lastUpdated: Date.now(),
     };
 
@@ -77,7 +83,13 @@ export const setTypingStatus = mutation({
     const user = await ctx.db.get(userId);
     if (!user) throw new Error("User not found");
 
-    const userName = user.name || user.email || "Anonymous";
+    // Ensure userName is always a string
+    const userName: string =
+      typeof user.name === "string" && user.name.length > 0
+        ? user.name
+        : typeof user.email === "string" && user.email.length > 0
+          ? user.email
+          : userId;
 
     // Get current sync state
     const syncState = await ctx.db
@@ -86,13 +98,18 @@ export const setTypingStatus = mutation({
       .first();
 
     if (syncState) {
-      const typingUsers = syncState.typingUsers || [];
-      let updatedTypingUsers;
+      const typingUsers: string[] = Array.isArray(syncState.typingUsers)
+        ? syncState.typingUsers.filter(
+            (name): name is string => typeof name === "string",
+          )
+        : [];
+
+      let updatedTypingUsers: string[];
 
       if (args.isTyping) {
-        updatedTypingUsers = [...new Set([...typingUsers, userName])];
+        updatedTypingUsers = Array.from(new Set([...typingUsers, userName]));
       } else {
-        updatedTypingUsers = typingUsers.filter(name => name !== userName);
+        updatedTypingUsers = typingUsers.filter((name) => name !== userName);
       }
 
       await ctx.db.patch(syncState._id, {
