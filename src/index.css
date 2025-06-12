@@ -77,3 +77,56 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
+
+/* Markdown Content Styling */
+.markdown-content {
+  /* Ensure proper line breaks and spacing */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.markdown-content h1:first-child,
+.markdown-content h2:first-child,
+.markdown-content h3:first-child,
+.markdown-content p:first-child {
+  margin-top: 0;
+}
+
+.markdown-content h1:last-child,
+.markdown-content h2:last-child,
+.markdown-content h3:last-child,
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Code block styling with better contrast */
+.markdown-content pre {
+  background-color: #f8f9fa !important;
+  border: 1px solid #e9ecef;
+  color: #212529;
+}
+
+.markdown-content code {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+}
+
+/* Inline code styling */
+.markdown-content :not(pre) > code {
+  background-color: #f8f9fa;
+  color: #e83e8c;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-size: 0.875em;
+}
+
+/* Streaming animation for last element */
+.streaming-content .markdown-content::after {
+  content: '▊';
+  animation: blink 1s infinite;
+  color: #3b82f6;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}

@@ -12,6 +12,7 @@ const applicationTables = {
     shareId: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
+    pinned : v.boolean(),
   })
     .index("by_user", ["userId"])
     .index("by_share_id", ["shareId"])
@@ -22,7 +23,11 @@ const applicationTables = {
 
   messages: defineTable({
     chatId: v.id("chats"),
-    role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system")),
+    role: v.union(
+      v.literal("user"),
+      v.literal("assistant"),
+      v.literal("system"),
+    ),
     content: v.string(),
     parentId: v.optional(v.id("messages")),
     model: v.optional(v.string()),
@@ -54,8 +59,7 @@ const applicationTables = {
     activeUsers: v.array(v.string()),
     typingUsers: v.array(v.string()),
     lastUpdated: v.number(),
-  })
-    .index("by_chat", ["chatId"]),
+  }).index("by_chat", ["chatId"]),
 
   branches: defineTable({
     chatId: v.id("chats"),
@@ -72,10 +76,16 @@ const applicationTables = {
     messageId: v.id("messages"),
     userId: v.id("users"),
     model: v.string(),
-    messages: v.array(v.object({
-      role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system")),
-      content: v.string(),
-    })),
+    messages: v.array(
+      v.object({
+        role: v.union(
+          v.literal("user"),
+          v.literal("assistant"),
+          v.literal("system"),
+        ),
+        content: v.string(),
+      }),
+    ),
     checkpoint: v.string(),
     isActive: v.boolean(),
     isPaused: v.boolean(),

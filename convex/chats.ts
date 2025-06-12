@@ -15,7 +15,10 @@ export const listChats = query({
       .order("desc")
       .collect();
 
-    return chats;
+    return chats.sort((a,b) => {
+      if(a.pinned === b.pinned) return 0;
+      return a.pinned ? -1:1;
+    })
   },
 });
 
@@ -32,7 +35,8 @@ export const getChat = query({
       return null;
     }
 
-    return chat;
+    return chat
+    
   },
 });
 
@@ -67,6 +71,7 @@ export const createChat = mutation({
       systemPrompt: args.systemPrompt,
       createdAt: now,
       updatedAt: now,
+      pinned : false,
     });
 
     return chatId;
@@ -171,3 +176,77 @@ export const searchChats = query({
     return chats;
   },
 });
+
+export const prefetchChatData = query({
+  args: { chatIds: v.array(v.id("chats")) },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return [];
+
+    const chatDataPromises = args.chatIds.map(async (chatId) => {
+      // Get chat metadata
+      const chat = await ctx.db.get(chatId);
+      if (!chat || (chat.userId !== userId && !chat.isShared)) {
+        return null;
+      }
+
+      // Get main thread messages (limit to last 50 for performance)
+      const messages = await ctx.db
+        .query("messages")
+        .withIndex("by_chat", (q) => q.eq("chatId", chatId))
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .filter((q) => q.eq(q.field("branchId"), undefined))
+        .order("desc")
+        .take(50);
+
+      // Reverse to get chronological order
+      messages.reverse();
+
+      // Get active branch
+      const activeBranch = await ctx.db
+        .query("branches")
+        .withIndex("by_chat", (q) => q.eq("chatId", chatId))
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .first();
+
+      // Get streaming session
+      const streamingSession = await ctx.db
+        .query("streamingSessions")
+        .withIndex("by_chat", (q) => q.eq("chatId", chatId))
+        .filter((q) => q.eq(q.field("isActive"), true))
+        .first();
+
+      // Check if chat has branches (just check existence, don't load all)
+      const hasBranches = await ctx.db
+        .query("branches")
+        .withIndex("by_chat", (q) => q.eq("chatId", chatId))
+        .first();
+
+      return {
+        chat,
+        messages,
+        activeBranch,
+        streamingSession,
+        hasBranches: !!hasBranches,
+      };
+    });
+
+    const results = await Promise.all(chatDataPromises);
+    return results.filter((result) => result !== null);
+  },
+});
+
+
+export const pinned = mutation({
+  args:{chatId:v.id("chats")},
+ handler(ctx, args) {
+      ctx.db.patch(args.chatId,{pinned:true});
+ },
+})
+
+export const unpinned = mutation({
+  args:{chatId:v.id("chats")},
+ handler(ctx, args) {
+      ctx.db.patch(args.chatId,{pinned:false});
+ },
+})

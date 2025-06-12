@@ -13,17 +13,29 @@ import { BranchSelector } from "./BranchSelector";
 import { StreamControls } from "./StreamControls";
 import { SyncIndicator } from "./SyncIndicator";
 import { MessageInput } from "./MessageInput";
+import { MarkdownRenderer } from "../ui/MarkdownRenderer";
+import { useChatData } from "../../hooks/useChatPrefetch";
+
+interface PrefetchedChatData {
+  chat: any;
+  messages: any[];
+  activeBranch: any;
+  streamingSession: any;
+  hasBranches: boolean;
+}
 
 interface ChatWindowProps {
   chatId: Id<"chats"> | null;
   onToggleSidebar: () => void;
   sidebarOpen: boolean;
+  prefetchedChatData?: PrefetchedChatData;
 }
 
 export const ChatWindow = ({
   chatId,
   onToggleSidebar,
   sidebarOpen,
+  prefetchedChatData,
 }: ChatWindowProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState(
@@ -34,19 +46,10 @@ export const ChatWindow = ({
   >(undefined);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const chat = useQuery(api.chats.getChat, chatId ? { chatId } : "skip");
-  const activeBranch = useQuery(
-    api.branches.getActiveBranch,
-    chatId ? { chatId } : "skip",
-  );
-  const messages =
-    useQuery(
-      api.messages.getMessages,
-      chatId ? { chatId, branchId: activeBranch?._id } : "skip",
-    ) || [];
-  const streamingSession = useQuery(
-    api.messages.getActiveStreamingSession,
-    chatId ? { chatId } : "skip",
+  // Use prefetched data when available, fallback to regular queries
+  const { chat, activeBranch, messages, streamingSession, isPrefetched } = useChatData(
+    chatId,
+    prefetchedChatData
   );
 
   const addMessage = useMutation(api.messages.addMessage);
@@ -255,7 +258,15 @@ export const ChatWindow = ({
                     : "bg-gray-100 text-gray-900"
                 }`}
               >
-                <div className="message-content">{msg.content}</div>
+                <div className="message-content">
+                  {msg.role === "user" ? (
+                    // User messages as plain text since they're typically not markdown
+                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                  ) : (
+                    // AI messages rendered as markdown
+                    <MarkdownRenderer content={msg.content} />
+                  )}
+                </div>
 
                 <div className="flex items-center justify-between mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <span className="text-xs opacity-70">
@@ -284,31 +295,61 @@ export const ChatWindow = ({
             </div>
           ))}
 
-          {/* Streaming indicator */}
-          {streamingSession?.isActive && (
+          {/* Streaming indicator with live content */}
+          {(streamingSession?.isActive ) && (
             <div className="flex items-start space-x-3">
               <Avatar className="w-8 h-8">
                 <AvatarFallback>
                   <Bot className="h-4 w-4" />
                 </AvatarFallback>
               </Avatar>
-              <div className="bg-gray-100 rounded-lg p-4">
-                <div className="flex items-center space-x-2">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                    <div
-                      className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-                      style={{ animationDelay: "0.1s" }}
-                    ></div>
-                    <div
-                      className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-                      style={{ animationDelay: "0.2s" }}
-                    ></div>
+              <div className="bg-gray-100 rounded-lg p-4 max-w-3xl">
+                {streamingSession?.messageId ? (
+                  // Show the content of the streaming message rendered as markdown
+                  <div className="streaming-content">
+                    {(() => {
+                      // Find the streaming message by its ID
+                      const streamingMessage = messages.find(m => m._id === streamingSession.messageId);
+                      return streamingMessage?.content ? (
+                        <MarkdownRenderer content={streamingMessage.content} />
+                      ) : (
+                        <div className="text-gray-500 italic">Thinking...</div>
+                      );
+                    })()}
+                    <div className="flex items-center space-x-2 mt-2">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                        <div
+                          className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+                          style={{ animationDelay: "0.1s" }}
+                        ></div>
+                        <div
+                          className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+                          style={{ animationDelay: "0.2s" }}
+                        ></div>
+                      </div>
+                      <span className="text-sm text-gray-600">
+                        Streaming...
+                      </span>
+                    </div>
                   </div>
-                  <span className="text-sm text-gray-600">
-                    AI is thinking...
-                  </span>
-                </div>
+                ) : (
+                  // Fallback to thinking indicator
+                  <div className="flex items-center space-x-2">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                      <div
+                        className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.1s" }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.2s" }}
+                      ></div>
+                    </div>
+                    <span className="text-sm text-gray-600">Thinking...</span>
+                  </div>
+                )}
               </div>
             </div>
           )}
