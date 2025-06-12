@@ -20,6 +20,7 @@ import {
 import { Id } from "../../../convex/_generated/dataModel";
 import { toast } from "sonner";
 import { SignOutButton } from "../../SignOutButton";
+import UserPrompt from "../chat/UserPrompt";
 
 interface Chat {
   _id: Id<"chats">;
@@ -48,7 +49,7 @@ export const ChatSidebar = ({
   onSelectChat,
   onCreateChat,
   onToggleSidebar,
-  sidebarOpen,
+
   getChatData,
   isPrefetched,
   isPrefetchLoading,
@@ -62,15 +63,12 @@ export const ChatSidebar = ({
 
   // Filter and sort chats
   const filteredChats = chats.filter((chat) =>
-    chat.title.toLowerCase().includes(searchQuery.toLowerCase())
+    chat.title.toLowerCase().includes(searchQuery.toLowerCase()),
   );
   const pinnedChats = filteredChats.filter((chat) => chat.pinned);
   const unpinnedChats = filteredChats.filter((chat) => !chat.pinned);
 
-  const handleDeleteChat = async (
-    chatId: Id<"chats">,
-    e: React.MouseEvent
-  ) => {
+  const handleDeleteChat = async (chatId: Id<"chats">, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!confirm("Are you sure you want to delete this chat?")) return;
     try {
@@ -82,10 +80,7 @@ export const ChatSidebar = ({
     }
   };
 
-  const handleShareChat = async (
-    chatId: Id<"chats">,
-    e: React.MouseEvent
-  ) => {
+  const handleShareChat = async (chatId: Id<"chats">, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
       const shareId = await shareChat({ chatId });
@@ -97,10 +92,7 @@ export const ChatSidebar = ({
     }
   };
 
-  const handlePinChat = async (
-    chatId: Id<"chats">,
-    e: React.MouseEvent
-  ) => {
+  const handlePinChat = async (chatId: Id<"chats">, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
       await pinChat({ chatId });
@@ -110,10 +102,7 @@ export const ChatSidebar = ({
     }
   };
 
-  const handleUnpinChat = async (
-    chatId: Id<"chats">,
-    e: React.MouseEvent
-  ) => {
+  const handleUnpinChat = async (chatId: Id<"chats">, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
       await unpinChat({ chatId });
@@ -128,7 +117,10 @@ export const ChatSidebar = ({
     const now = new Date();
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
     if (diffInHours < 24) {
-      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     } else if (diffInHours < 24 * 7) {
       return date.toLocaleDateString([], { weekday: "short" });
     } else {
@@ -136,11 +128,13 @@ export const ChatSidebar = ({
     }
   };
 
+  // Always call useQuery unconditionally
   const ChatIcon = ({ chatId }: { chatId: Id<"chats"> }) => {
     const prefetchedData = getChatData(chatId);
+    const hasBranchesQuery = useQuery(api.branches.chatHasBranches, { chatId });
     const hasBranches = prefetchedData
       ? prefetchedData.hasBranches
-      : useQuery(api.branches.chatHasBranches, { chatId });
+      : hasBranchesQuery;
     return hasBranches ? (
       <GitBranch className="h-5 w-5 text-indigo-400 flex-shrink-0" />
     ) : (
@@ -157,8 +151,8 @@ export const ChatSidebar = ({
           selectedChatId === chat._id
             ? "bg-gradient-to-r from-blue-100/80 to-blue-50 border-2 border-blue-400"
             : isPinned
-            ? "bg-gradient-to-r from-yellow-50/80 to-white border border-yellow-200"
-            : "bg-white/80 border border-gray-200 hover:bg-blue-50/60"
+              ? "bg-gradient-to-r from-yellow-50/80 to-white border border-yellow-200"
+              : "bg-white/80 border border-gray-200 hover:bg-blue-50/60"
         }
       `}
       style={{
@@ -201,7 +195,9 @@ export const ChatSidebar = ({
           >
             {chat.model.split("/").pop()?.split(":")[0]}
           </p>
-          <span className="text-xs text-gray-400">{formatDate(chat.updatedAt)}</span>
+          <span className="text-xs text-gray-400">
+            {formatDate(chat.updatedAt)}
+          </span>
         </div>
       </div>
       <div className="flex items-center gap-1 ml-2">
@@ -209,7 +205,9 @@ export const ChatSidebar = ({
           <Button
             variant="ghost"
             size="icon"
-            onClick={(e) => handleUnpinChat(chat._id, e)}
+            onClick={(e) => {
+              void handleUnpinChat(chat._id, e);
+            }}
             className="h-7 w-7"
             aria-label="Unpin"
             title="Unpin"
@@ -220,7 +218,9 @@ export const ChatSidebar = ({
           <Button
             variant="ghost"
             size="icon"
-            onClick={(e) => handlePinChat(chat._id, e)}
+            onClick={(e) => {
+              void handlePinChat(chat._id, e);
+            }}
             className="h-7 w-7"
             aria-label="Pin"
             title="Pin"
@@ -231,7 +231,9 @@ export const ChatSidebar = ({
         <Button
           variant="ghost"
           size="icon"
-          onClick={(e) => handleShareChat(chat._id, e)}
+          onClick={(e) => {
+            void handleShareChat(chat._id, e);
+          }}
           className="h-7 w-7"
           aria-label="Share"
           title="Share"
@@ -241,7 +243,9 @@ export const ChatSidebar = ({
         <Button
           variant="ghost"
           size="icon"
-          onClick={(e) => handleDeleteChat(chat._id, e)}
+          onClick={(e) => {
+            void handleDeleteChat(chat._id, e);
+          }}
           className="h-7 w-7"
           aria-label="Delete"
           title="Delete"
@@ -284,7 +288,9 @@ export const ChatSidebar = ({
           </div>
         </div>
         <Button
-          onClick={() => void onCreateChat()}
+          onClick={() => {
+            void onCreateChat();
+          }}
           className="w-full mb-3 bg-gradient-to-r from-blue-500 to-sky-400 hover:from-blue-600 hover:to-sky-500 text-white font-semibold shadow"
         >
           <Plus className="h-5 w-5 mr-2" />
@@ -346,14 +352,16 @@ export const ChatSidebar = ({
 
       {/* Footer */}
       <div className="p-4 border-t border-gray-200 bg-white/80">
+        <UserPrompt />
         <div className="text-xs text-gray-500 text-center space-y-1">
-          <p>
-            <span className="font-semibold text-blue-600">Powered by OpenRouter</span>
-          </p>
-          <p>Llama 3.3 & DeepSeek models</p>
           {chats.length > 0 && (
             <p className="text-green-600">
-              ⚡ {chats.slice(0, 10).filter((chat) => isPrefetched(chat._id)).length}/10 chats prefetched
+              ⚡{" "}
+              {
+                chats.slice(0, 10).filter((chat) => isPrefetched(chat._id))
+                  .length
+              }
+              /10 chats prefetched
             </p>
           )}
         </div>

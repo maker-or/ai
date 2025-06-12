@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../ui/button";
@@ -47,10 +53,8 @@ export const ChatWindow = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Use prefetched data when available, fallback to regular queries
-  const { chat, activeBranch, messages, streamingSession, isPrefetched } = useChatData(
-    chatId,
-    prefetchedChatData
-  );
+  const { chat, activeBranch, messages, streamingSession, isPrefetched } =
+    useChatData(chatId, prefetchedChatData);
 
   const addMessage = useMutation(api.messages.addMessage);
   const updateChat = useMutation(api.chats.updateChat);
@@ -71,73 +75,76 @@ export const ChatWindow = ({
 
   // Handle typing indicator - moved to MessageInput component
 
-  const handleSendMessage = useCallback(async (messageText: string) => {
-    if (!messageText.trim() || !chatId || isLoading) return;
+  const handleSendMessage = useCallback(
+    async (messageText: string) => {
+      if (!messageText.trim() || !chatId || isLoading) return;
 
-    const currentMessage = messageText.trim();
-    setIsLoading(true);
+      const currentMessage = messageText.trim();
+      setIsLoading(true);
 
-    try {
-      // Get current messages from ref to avoid dependency
-      const currentMessages = messagesRef.current || [];
-      
-      // Add user message
-      const messageId = await addMessage({
-        chatId,
-        role: "user",
-        content: currentMessage,
-        parentId: selectedMessageId || undefined,
-        branchId: activeBranch?._id,
-      });
+      try {
+        // Get current messages from ref to avoid dependency
+        const currentMessages = messagesRef.current || [];
 
-      // Update chat title if it's the first message
-      if (currentMessages.length === 0) {
-        const title =
-          currentMessage.length > 50
-            ? currentMessage.substring(0, 50) + "..."
-            : currentMessage;
-        await updateChat({
+        // Add user message
+        const messageId = await addMessage({
           chatId,
-          title,
-          model: selectedModel,
+          role: "user",
+          content: currentMessage,
+          parentId: selectedMessageId || undefined,
+          branchId: activeBranch?._id,
         });
+
+        // Update chat title if it's the first message
+        if (currentMessages.length === 0) {
+          const title =
+            currentMessage.length > 50
+              ? currentMessage.substring(0, 50) + "..."
+              : currentMessage;
+          await updateChat({
+            chatId,
+            title,
+            model: selectedModel,
+          });
+        }
+
+        // Prepare messages for AI
+        const chatMessages = [
+          ...currentMessages.map((msg) => ({
+            role: msg.role,
+            content: msg.content,
+          })),
+          { role: "user" as const, content: currentMessage },
+        ];
+
+        // Stream AI response
+        await streamChatCompletion({
+          chatId,
+          messages: chatMessages,
+          model: selectedModel,
+          parentMessageId: messageId,
+          branchId: activeBranch?._id,
+        });
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to send message";
+        toast.error(errorMessage);
+        console.error("Error sending message:", err);
+      } finally {
+        setIsLoading(false);
       }
-
-      // Prepare messages for AI
-      const chatMessages = [
-        ...currentMessages.map((msg) => ({
-          role: msg.role,
-          content: msg.content,
-        })),
-        { role: "user" as const, content: currentMessage },
-      ];
-
-      // Stream AI response
-      await streamChatCompletion({
-        chatId,
-        messages: chatMessages,
-        model: selectedModel,
-        parentMessageId: messageId,
-        branchId: activeBranch?._id,
-      });
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to send message";
-      toast.error(errorMessage);
-      console.error("Error sending message:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [
-    chatId,
-    isLoading,
-    addMessage,
-    selectedMessageId,
-    activeBranch?._id,
-    updateChat,
-    selectedModel,
-    streamChatCompletion,
-  ]);
+    },
+    [
+      chatId,
+      isLoading,
+      addMessage,
+      selectedMessageId,
+      activeBranch?._id,
+      updateChat,
+      selectedModel,
+      streamChatCompletion,
+    ],
+  );
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -296,63 +303,6 @@ export const ChatWindow = ({
           ))}
 
           {/* Streaming indicator with live content */}
-          {(streamingSession?.isActive ) && (
-            <div className="flex items-start space-x-3">
-              <Avatar className="w-8 h-8">
-                <AvatarFallback>
-                  <Bot className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
-              <div className="bg-gray-100 rounded-lg p-4 max-w-3xl">
-                {streamingSession?.messageId ? (
-                  // Show the content of the streaming message rendered as markdown
-                  <div className="streaming-content">
-                    {(() => {
-                      // Find the streaming message by its ID
-                      const streamingMessage = messages.find(m => m._id === streamingSession.messageId);
-                      return streamingMessage?.content ? (
-                        <MarkdownRenderer content={streamingMessage.content} />
-                      ) : (
-                        <div className="text-gray-500 italic">Thinking...</div>
-                      );
-                    })()}
-                    <div className="flex items-center space-x-2 mt-2">
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                        <div
-                          className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-                          style={{ animationDelay: "0.1s" }}
-                        ></div>
-                        <div
-                          className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-                          style={{ animationDelay: "0.2s" }}
-                        ></div>
-                      </div>
-                      <span className="text-sm text-gray-600">
-                        Streaming...
-                      </span>
-                    </div>
-                  </div>
-                ) : (
-                  // Fallback to thinking indicator
-                  <div className="flex items-center space-x-2">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                      <div
-                        className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-                        style={{ animationDelay: "0.1s" }}
-                      ></div>
-                      <div
-                        className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-                        style={{ animationDelay: "0.2s" }}
-                      ></div>
-                    </div>
-                    <span className="text-sm text-gray-600">Thinking...</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
 
           <div ref={messagesEndRef} />
         </div>

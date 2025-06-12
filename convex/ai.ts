@@ -12,7 +12,7 @@ const getOpenRouterClient = () => {
   if (!openRouterKey) {
     throw new Error("OPENROUTER_API_KEY environment variable is required");
   }
-  
+
   return new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
     apiKey: openRouterKey,
@@ -22,10 +22,16 @@ const getOpenRouterClient = () => {
 export const streamChatCompletion = action({
   args: {
     chatId: v.id("chats"),
-    messages: v.array(v.object({
-      role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system")),
-      content: v.string(),
-    })),
+    messages: v.array(
+      v.object({
+        role: v.union(
+          v.literal("user"),
+          v.literal("assistant"),
+          v.literal("system"),
+        ),
+        content: v.string(),
+      }),
+    ),
     model: v.string(),
     parentMessageId: v.optional(v.id("messages")),
     branchId: v.optional(v.id("branches")),
@@ -33,37 +39,47 @@ export const streamChatCompletion = action({
   handler: async (ctx, args): Promise<any> => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
+    const prompt = await ctx.runQuery(api.users.getPrompt, {});
 
     // Create assistant message
-    const assistantMessageId: any = await ctx.runMutation(api.messages.addMessage, {
-      chatId: args.chatId,
-      role: "assistant",
-      content: "",
-      parentId: args.parentMessageId,
-      model: args.model,
-      branchId: args.branchId,
-    });
+    const assistantMessageId: any = await ctx.runMutation(
+      api.messages.addMessage,
+      {
+        chatId: args.chatId,
+        role: "assistant",
+        content: "",
+        parentId: args.parentMessageId,
+        model: args.model,
+        branchId: args.branchId,
+      },
+    );
 
     // Create resumable stream
-    const streamId = await ctx.runMutation(internal.resumable.createResumableStream, {
-      chatId: args.chatId,
-      messageId: assistantMessageId,
-      model: args.model,
-      messages: args.messages,
-    });
+    const streamId = await ctx.runMutation(
+      internal.resumable.createResumableStream,
+      {
+        chatId: args.chatId,
+        messageId: assistantMessageId,
+        model: args.model,
+        messages: args.messages,
+      },
+    );
 
     // Create streaming session
-    const sessionId = await ctx.runMutation(api.messages.createStreamingSession, {
-      chatId: args.chatId,
-      messageId: assistantMessageId,
-    });
+    const sessionId = await ctx.runMutation(
+      api.messages.createStreamingSession,
+      {
+        chatId: args.chatId,
+        messageId: assistantMessageId,
+      },
+    );
 
     try {
       const client = getOpenRouterClient();
-      
+
       const response = await client.chat.completions.create({
         model: args.model,
-        messages: args.messages,
+        messages: [{ role: "system", content: prompt }, ...args.messages],
         stream: true,
         temperature: 0.7,
         max_tokens: 4096,
@@ -71,14 +87,14 @@ export const streamChatCompletion = action({
 
       let fullContent = "";
       let tokenCount = 0;
-      
+
       for await (const chunk of response) {
         const content = chunk.choices?.[0]?.delta?.content;
-        
+
         if (content) {
           fullContent += content;
           tokenCount++;
-          
+
           // Update streaming session
           await ctx.runMutation(internal.messages.updateStreamingSession, {
             sessionId,
@@ -109,7 +125,6 @@ export const streamChatCompletion = action({
       });
 
       return assistantMessageId;
-
     } catch (error) {
       // Update message with error
       await ctx.runMutation(api.messages.updateMessage, {

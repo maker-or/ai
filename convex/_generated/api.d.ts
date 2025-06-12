@@ -22,6 +22,7 @@ import type * as messages from "../messages.js";
 import type * as resumable from "../resumable.js";
 import type * as router from "../router.js";
 import type * as sync from "../sync.js";
+import type * as users from "../users.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -41,6 +42,7 @@ declare const fullApi: ApiFromModules<{
   resumable: typeof resumable;
   router: typeof router;
   sync: typeof sync;
+  users: typeof users;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
