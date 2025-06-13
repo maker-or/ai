@@ -26,6 +26,7 @@ const modalContentStyles: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   gap: 16,
+  zIndex: 50,
 };
 
 const iconButtonStyles: React.CSSProperties = {
@@ -65,7 +66,7 @@ export default function UserPrompt() {
   };
 
   return (
-    <>
+    <main>
       <button
         style={iconButtonStyles}
         aria-label="Edit system prompt"
@@ -81,7 +82,11 @@ export default function UserPrompt() {
         </svg>
       </button>
       {open && (
-        <div style={modalStyles} onClick={() => setOpen(false)}>
+        <div
+          className="z-10 bg-red-200"
+          style={modalStyles}
+          onClick={() => setOpen(false)}
+        >
           <div
             style={modalContentStyles}
             onClick={(e) => e.stopPropagation()}
@@ -144,6 +149,6 @@ export default function UserPrompt() {
           </div>
         </div>
       )}
-    </>
+    </main>
   );
 }

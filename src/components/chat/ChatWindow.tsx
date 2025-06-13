@@ -29,6 +29,12 @@ interface PrefetchedChatData {
   streamingSession: any;
   hasBranches: boolean;
 }
+type Message = {
+  _id: string;
+  role: "user" | "ai";
+  content: string | string[]; // user: string, ai: string[]
+  createdAt: number;
+};
 
 interface ChatWindowProps {
   chatId: Id<"chats"> | null;
@@ -267,11 +273,15 @@ export const ChatWindow = ({
               >
                 <div className="message-content">
                   {msg.role === "user" ? (
-                    // User messages as plain text since they're typically not markdown
-                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                    <div className="whitespace-pre-wrap">
+                      {msg.content as string}
+                    </div>
+                  ) : Array.isArray(msg.content) ? (
+                    msg.content.map((chunk: string, idx: number) => (
+                      <MarkdownRenderer key={idx} chunk={chunk} />
+                    ))
                   ) : (
-                    // AI messages rendered as markdown
-                    <MarkdownRenderer content={msg.content} />
+                    <MarkdownRenderer chunk={msg.content as string} />
                   )}
                 </div>
 
@@ -328,7 +338,9 @@ export const ChatWindow = ({
 
       {/* Input */}
       <MessageInput
-        onSendMessage={handleSendMessage}
+        onSendMessage={(msg) => {
+          void handleSendMessage(msg);
+        }}
         disabled={false}
         isLoading={isLoading}
         chatId={chatId}
