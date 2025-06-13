@@ -27,6 +27,7 @@ const applicationTables = {
     image: v.optional(v.string()),
     name: v.optional(v.string()),
     prompt: v.optional(v.string()),
+    encryptedApiKey: v.optional(v.string()),
   }).index("email", ["email"]),
 
   messages: defineTable({

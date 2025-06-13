@@ -21,6 +21,7 @@ import { Id } from "../../../convex/_generated/dataModel";
 import { toast } from "sonner";
 import { SignOutButton } from "../../SignOutButton";
 import UserPrompt from "../chat/UserPrompt";
+import KeyInput from "../chat/KeyInput";
 
 interface Chat {
   _id: Id<"chats">;
@@ -352,7 +353,11 @@ export const ChatSidebar = ({
 
       {/* Footer */}
       <div className="p-4 border-t border-gray-200 bg-white/80">
-        <UserPrompt />
+        <div className="flex gap-3">
+          <UserPrompt />
+          <KeyInput />
+        </div>
+
         <div className="text-xs text-gray-500 text-center space-y-1">
           {chats.length > 0 && (
             <p className="text-green-600">

@@ -1,7 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation, internalMutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { Id } from "./_generated/dataModel";
 
 // Resumable chat streams
 export const createResumableStream = internalMutation({
@@ -9,10 +8,16 @@ export const createResumableStream = internalMutation({
     chatId: v.id("chats"),
     messageId: v.id("messages"),
     model: v.string(),
-    messages: v.array(v.object({
-      role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system")),
-      content: v.string(),
-    })),
+    messages: v.array(
+      v.object({
+        role: v.union(
+          v.literal("user"),
+          v.literal("assistant"),
+          v.literal("system"),
+        ),
+        content: v.string(),
+      }),
+    ),
     checkpoint: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -57,7 +62,7 @@ export const pauseStream = mutation({
 });
 
 export const resumeStream = mutation({
-  args: { 
+  args: {
     streamId: v.id("resumableStreams"),
     fromCheckpoint: v.optional(v.string()),
   },
