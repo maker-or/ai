@@ -4,11 +4,13 @@ import { v } from "convex/values";
 import { action } from "./_generated/server";
 import { api, internal } from "./_generated/api";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { useQuery } from "convex/react";
+
 import OpenAI from "openai";
 
 // Use OpenRouter for all models
 const getOpenRouterClient = () => {
-  const openRouterKey = process.env.OPENROUTER_API_KEY;
+  const openRouterKey = process.env.OPENROUTER_API_KEY || "";
   if (!openRouterKey) {
     throw new Error("OPENROUTER_API_KEY environment variable is required");
   }

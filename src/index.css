@@ -3,12 +3,36 @@
 @tailwind utilities;
 
 :root {
-  --color-light: #ffffff;
-  --color-dark: #171717;
-}
+  /* Default theme CSS variables - will be dynamically updated by ThemeProvider */
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #f8fafc;
+  --theme-bg-sidebar: #f1f5f9;
+  --theme-bg-chat: #ffffff;
 
-.accent-text {
-  @apply text-slate-600;
+  --theme-text-primary: #171717;
+  --theme-text-secondary: #64748b;
+  --theme-text-muted: #94a3b8;
+  --theme-text-inverse: #ffffff;
+
+  --theme-border-primary: #e2e8f0;
+  --theme-border-secondary: #f1f5f9;
+  --theme-border-focus: #3b82f6;
+
+  --theme-primary: #0c0c0c;
+  --theme-primary-hover: #374151;
+  --theme-primary-active: #1f2937;
+
+  --theme-chat-user-bubble: #3b82f6;
+  --theme-chat-assistant-bubble: #f1f5f9;
+  --theme-chat-user-text: #ffffff;
+  --theme-chat-assistant-text: #171717;
+
+  --theme-accent: #8b5cf6;
+  --theme-accent-hover: #7c3aed;
+
+  --theme-success: #10b981;
+  --theme-warning: #f59e0b;
+  --theme-error: #ef4444;
 }
 
 body {
@@ -28,16 +52,20 @@ body {
     "Segoe UI Emoji",
     "Segoe UI Symbol",
     "Noto Color Emoji";
-  color: var(--color-dark);
-  background: var(--color-light);
+  color: var(--theme-text-primary);
+  background: var(--theme-bg-primary);
+  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* only use this to update the style of the auth input fields. use a different class for all other input fields */
-.auth-input-field {
-  @apply w-full px-4 py-3 rounded-container bg-white border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow shadow-sm hover:shadow;
+/* Global theme transition for smooth switching */
+body.theme-transitioning * {
+  transition: 
+    color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
-
-/* only use this to update the style of the auth buttons. use the button class for all other buttons */
 
 /* Chat message styling */
 .message-content {
@@ -45,11 +73,11 @@ body {
 }
 
 .message-content code {
-  @apply bg-gray-100 px-1 py-0.5 rounded text-sm font-mono;
+  @apply bg-theme-bg-secondary px-1 py-0.5 rounded text-sm font-mono;
 }
 
 .message-content pre {
-  @apply bg-gray-100 p-3 rounded-lg overflow-x-auto text-sm font-mono;
+  @apply bg-theme-bg-secondary p-3 rounded-lg overflow-x-auto text-sm font-mono;
 }
 
 .message-content pre code {
@@ -62,17 +90,17 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--theme-bg-secondary);
   border-radius: 3px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--theme-border-primary);
   border-radius: 3px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: var(--theme-text-muted);
 }
 
 /* Markdown Content Styling */
@@ -98,9 +126,9 @@ body {
 
 /* Code block styling with better contrast */
 .markdown-content pre {
-  background-color: #f8f9fa !important;
-  border: 1px solid #e9ecef;
-  color: #212529;
+  background-color: var(--theme-bg-secondary) !important;
+  border: 1px solid var(--theme-border-primary);
+  color: var(--theme-text-primary);
 }
 
 .markdown-content code {
@@ -111,8 +139,8 @@ body {
 
 /* Inline code styling */
 .markdown-content :not(pre) > code {
-  background-color: #f8f9fa;
-  color: #e83e8c;
+  background-color: var(--theme-bg-secondary);
+  color: var(--theme-accent);
   padding: 0.2em 0.4em;
   border-radius: 3px;
   font-size: 0.875em;
@@ -134,4 +162,74 @@ body {
   100% {
     opacity: 0;
   }
+}
+
+/* Enhanced animations for theme switching */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animation utility classes */
+.animate-in {
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fadeIn;
+}
+
+.slide-in-from-bottom {
+  animation-name: slideInFromBottom;
+}
+
+.slide-in-from-bottom-4 {
+  animation-name: slideInFromBottom;
+}
+
+.slide-in-from-top {
+  animation-name: slideInFromTop;
+}
+
+.zoom-in {
+  animation-name: zoomIn;
 }

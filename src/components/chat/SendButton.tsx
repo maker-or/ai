@@ -24,7 +24,7 @@ export const SendButton = memo(
         className="h-[60px] w-[60px]" // Tailwind CSS for sizing
       >
         {isLoading ? (
-          <StopIcon size={24} className="animate-spin text-gray-400" />
+          <StopIcon size={24} className="animate-spin text-muted" />
         ) : (
           <ArrowUpIcon size={24} />
         )}

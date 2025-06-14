@@ -82,35 +82,65 @@ export const BranchSelector = ({
     <div className="flex items-center space-x-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            <GitBranch className="h-4 w-4 mr-2" />
-            {activeBranch?.name || "Main"}
-            <ChevronDown className="h-4 w-4 ml-2" />
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="bg-theme-bg-secondary hover:bg-theme-bg-primary border-theme-border-primary text-theme-text-primary shadow-sm hover:shadow transition-all duration-200"
+          >
+            <GitBranch className="h-4 w-4 mr-2 text-theme-accent" />
+            <span className="font-medium">{activeBranch?.name || "Main"}</span>
+            <ChevronDown className="h-4 w-4 ml-2 text-theme-text-muted" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem onClick={() => void handleSwitchBranch(undefined)}>
-            Main Thread
-          </DropdownMenuItem>
-          {branches.map((branch) => (
-            <DropdownMenuItem
-              key={branch._id}
-              onClick={() => void handleSwitchBranch(branch._id)}
+        <DropdownMenuContent className="w-56 bg-theme-bg-primary border-theme-border-primary shadow-lg rounded-container p-2">
+          <div className="space-y-1">
+            <DropdownMenuItem 
+              onClick={() => void handleSwitchBranch(undefined)}
+              className="flex items-center p-3 cursor-pointer rounded-lg hover:bg-theme-bg-secondary transition-colors duration-150 border-none focus:bg-theme-bg-secondary"
             >
-              {branch.name}
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center space-x-2">
+                  <div className="h-2 w-2 bg-theme-primary rounded-full"></div>
+                  <span className="font-medium text-theme-text-primary">Main Thread</span>
+                </div>
+                {!activeBranch && (
+                  <span className="text-xs text-theme-accent font-medium">Active</span>
+                )}
+              </div>
             </DropdownMenuItem>
-          ))}
-          <DropdownMenuItem 
-            onClick={() => {
-              setIsCreateDialogOpen(true);
-              setBranchDialogOpen?.(true);
-            }}
-            disabled={!currentMessageId}
-            className="text-blue-600"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Create Branch
-          </DropdownMenuItem>
+            
+            {branches.map((branch) => (
+              <DropdownMenuItem
+                key={branch._id}
+                onClick={() => void handleSwitchBranch(branch._id)}
+                className="flex items-center p-3 cursor-pointer rounded-lg hover:bg-theme-bg-secondary transition-colors duration-150 border-none focus:bg-theme-bg-secondary"
+              >
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center space-x-2">
+                    <GitBranch className="h-3 w-3 text-theme-accent" />
+                    <span className="font-medium text-theme-text-primary">{branch.name}</span>
+                  </div>
+                  {activeBranch?._id === branch._id && (
+                    <span className="text-xs text-theme-accent font-medium">Active</span>
+                  )}
+                </div>
+              </DropdownMenuItem>
+            ))}
+            
+            <div className="border-t border-theme-border-secondary my-2"></div>
+            
+            <DropdownMenuItem 
+              onClick={() => {
+                setIsCreateDialogOpen(true);
+                setBranchDialogOpen?.(true);
+              }}
+              disabled={!currentMessageId}
+              className="flex items-center p-3 cursor-pointer rounded-lg hover:bg-theme-accent hover:text-theme-text-inverse transition-all duration-150 border-none focus:bg-theme-accent focus:text-theme-text-inverse disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              <span className="font-medium">Create Branch</span>
+            </DropdownMenuItem>
+          </div>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -121,27 +151,47 @@ export const BranchSelector = ({
           setBranchDialogOpen?.(open);
         }}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Branch</DialogTitle>
+        <DialogContent className="bg-theme-bg-primary border-theme-border-primary shadow-2xl rounded-container max-w-md">
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-xl font-semibold text-theme-text-primary flex items-center space-x-2">
+              <GitBranch className="h-5 w-5 text-theme-accent" />
+              <span>Create New Branch</span>
+            </DialogTitle>
+            <p className="text-sm text-theme-text-muted">
+              Create a new conversation branch from this message to explore different directions.
+            </p>
           </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="Branch name (optional)"
-              value={branchName}
-              onChange={(e) => setBranchName(e.target.value)}
-            />
-            <div className="flex justify-end space-x-2">
+          <div className="space-y-6 pt-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-theme-text-primary">
+                Branch name (optional)
+              </label>
+              <Input
+                placeholder="e.g., Alternative approach, Deep dive..."
+                value={branchName}
+                onChange={(e) => setBranchName(e.target.value)}
+                className="bg-theme-bg-secondary border-theme-border-primary text-theme-text-primary placeholder:text-theme-text-muted focus:border-theme-border-focus focus:ring-1 focus:ring-theme-border-focus"
+              />
+              <p className="text-xs text-theme-text-muted">
+                If no name is provided, a default name will be generated.
+              </p>
+            </div>
+            <div className="flex justify-end space-x-3 pt-2">
               <Button
                 variant="outline"
                 onClick={() => {
                   setIsCreateDialogOpen(false);
                   setBranchDialogOpen?.(false);
                 }}
+                className="border-theme-border-primary text-theme-text-secondary hover:bg-theme-bg-secondary"
               >
                 Cancel
               </Button>
-              <Button onClick={() => void handleCreateBranch()}>
+              <Button 
+                onClick={() => void handleCreateBranch()}
+                className="bg-theme-accent hover:bg-theme-accent-hover text-theme-text-inverse shadow-sm"
+              >
+                <GitBranch className="h-4 w-4 mr-2" />
                 Create Branch
               </Button>
             </div>

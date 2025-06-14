@@ -50,11 +50,11 @@ export const SyncIndicator = ({ chatId }: SyncIndicatorProps) => {
   const activeUsers = syncState?.activeUsers || [];
 
   return (
-    <div className="flex items-center space-x-2 text-xs text-gray-500">
+    <div className="flex items-center space-x-2 text-xs text-muted">
       {isOnline ? (
-        <Wifi className="h-4 w-4 text-green-500" />
+        <Wifi className="h-4 w-4 text-success" />
       ) : (
-        <WifiOff className="h-4 w-4 text-red-500" />
+        <WifiOff className="h-4 w-4 text-destructive" />
       )}
       
       {activeUsers.length > 1 && (
@@ -67,9 +67,9 @@ export const SyncIndicator = ({ chatId }: SyncIndicatorProps) => {
       {typingUsers.length > 0 && (
         <div className="flex items-center space-x-1">
           <div className="flex space-x-1">
-            <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"></div>
-            <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-            <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-1 h-1 bg-primary rounded-full animate-bounce"></div>
+            <div className="w-1 h-1 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+            <div className="w-1 h-1 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
           </div>
           <span>{typingUsers.join(", ")} typing...</span>
         </div>

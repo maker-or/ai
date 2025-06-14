@@ -1,11 +1,5 @@
-import React, {
-  useState,
-  useRef,
-  useEffect,
-  useCallback,
-  useMemo,
-} from "react";
-import { useQuery, useMutation, useAction } from "convex/react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useMutation, useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
@@ -19,7 +13,7 @@ import { BranchSelector } from "./BranchSelector";
 import { StreamControls } from "./StreamControls";
 import { SyncIndicator } from "./SyncIndicator";
 import { MessageInput } from "./MessageInput";
-import { MarkdownRenderer } from "../ui/MarkdownRenderer";
+import MarkdownRenderer from "../ui/MarkdownRenderer";
 import { useChatData } from "../../hooks/useChatPrefetch";
 
 interface PrefetchedChatData {
@@ -66,6 +60,7 @@ export const ChatWindow = ({
   const updateChat = useMutation(api.chats.updateChat);
   const streamChatCompletion = useAction(api.ai.streamChatCompletion);
   const setTypingStatus = useMutation(api.sync.setTypingStatus);
+  console.log(setTypingStatus);
 
   // Use ref to store current messages to avoid dependency issues
   const messagesRef = useRef(messages);
@@ -173,44 +168,20 @@ export const ChatWindow = ({
     return (
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            {!sidebarOpen && (
-              <Button variant="ghost" size="icon" onClick={onToggleSidebar}>
-                <Menu className="h-5 w-5" />
-              </Button>
-            )}
-            <h1 className="text-xl font-semibold">AI Chat</h1>
-          </div>
-          <SignOutButton />
-        </header>
+
 
         {/* Empty State */}
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center bg-theme-bg-chat">
           <div className="text-center max-w-md">
-            <Bot className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-            <h2 className="text-2xl font-semibold mb-2">Welcome to AI Chat</h2>
-            <p className="text-gray-600 mb-6">
-              Select a chat from the sidebar or create a new one to start
-              chatting with AI. Features include real-time sync, chat branching,
-              and resumable streams.
-            </p>
+            <Bot className="h-16 w-16 mx-auto mb-4 text-theme-text-muted" />
+            <h2 className="text-2xl font-semibold mb-2 text-theme-text-primary">Welcome to AI Chat</h2>
+ 
             <div className="mb-4">
-              <p className="text-sm text-gray-500 mb-2">Available Models:</p>
+              <p className="text-sm text-muted mb-2">Available Models:</p>
               <ModelSelector
                 selectedModel={selectedModel}
                 onModelChange={setSelectedModel}
               />
-            </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
-              <p className="font-medium text-blue-900 mb-2">
-                OpenRouter Required
-              </p>
-              <p className="text-blue-700">
-                This app uses OpenRouter to access Llama 3.3 and DeepSeek
-                models. Please set your OPENROUTER_API_KEY in the environment
-                variables.
-              </p>
             </div>
           </div>
         </div>
@@ -219,9 +190,9 @@ export const ChatWindow = ({
   }
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col bg-theme-bg-chat">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+      <header className="bg-theme-bg-primary border-b border-theme-border-primary p-4 flex items-center justify-between">
         <div className="flex items-center space-x-3">
           {!sidebarOpen && (
             <Button variant="ghost" size="icon" onClick={onToggleSidebar}>
@@ -229,9 +200,9 @@ export const ChatWindow = ({
             </Button>
           )}
           <div>
-            <h1 className="text-lg font-semibold">{chat?.title || "Chat"}</h1>
+            <h1 className="text-lg font-semibold text-theme-text-primary">{chat?.title || "Chat"}</h1>
             <div className="flex items-center space-x-2">
-              <p className="text-sm text-gray-500">{chat?.model}</p>
+              <p className="text-sm text-theme-text-secondary">{chat?.model}</p>
               <SyncIndicator chatId={chatId} />
             </div>
           </div>
@@ -267,8 +238,8 @@ export const ChatWindow = ({
               <div
                 className={`group max-w-3xl rounded-lg p-4 ${
                   msg.role === "user"
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-100 text-gray-900"
+                    ? "bg-theme-chat-user-bubble text-theme-chat-user-text"
+                    : "bg-theme-chat-assistant-bubble text-theme-chat-assistant-text"
                 }`}
               >
                 <div className="message-content">
@@ -319,7 +290,7 @@ export const ChatWindow = ({
       </ScrollArea>
 
       {/* Controls at bottom */}
-      <div className="border-t border-gray-200 px-4 py-2">
+      <div className="border-t border-theme-border-primary px-4 py-2">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <BranchSelector

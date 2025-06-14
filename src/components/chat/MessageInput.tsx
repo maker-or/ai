@@ -57,7 +57,7 @@ export const MessageInput = memo(
     }, [handleSend]);
 
     return (
-      <div className="border-t border-gray-200 p-4">
+      <div className="border-t border-border p-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-end space-x-3">
             <div className="flex-1">
@@ -77,7 +77,7 @@ export const MessageInput = memo(
             />
           </div>
 
-          <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+          <div className="flex items-center justify-between mt-2 text-xs text-muted">
             <span>Press Enter to send, Shift+Enter for new line</span>
             <span>{message.length}/4000</span>
           </div>

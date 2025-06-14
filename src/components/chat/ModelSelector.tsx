@@ -78,40 +78,57 @@ export const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorPro
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="w-auto">
-          <Bot className="h-4 w-4 mr-2" />
-          <span className="max-w-32 truncate">{selectedModelInfo?.name}</span>
-          <ChevronDown className="h-4 w-4 ml-2" />
+        <Button 
+          variant="outline" 
+          className="w-auto bg-theme-bg-secondary hover:bg-theme-bg-primary border-theme-border-primary text-theme-text-primary shadow-sm hover:shadow transition-all duration-200"
+        >
+          <Bot className="h-4 w-4 mr-2 text-theme-accent" />
+          <span className="max-w-32 truncate font-medium">{selectedModelInfo?.name}</span>
+          <ChevronDown className="h-4 w-4 ml-2 text-theme-text-muted" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80">
+      <DropdownMenuContent 
+        align="end" 
+        className="w-80 bg-theme-bg-primary border-theme-border-primary shadow-lg rounded-container p-2"
+      >
         {isLoading ? (
-          <div className="p-4 text-center text-sm text-gray-500">
-            Loading models...
+          <div className="p-6 text-center">
+            <div className="inline-flex items-center space-x-2 text-theme-text-muted">
+              <div className="w-4 h-4 border-2 border-theme-accent border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-sm">Loading models...</span>
+            </div>
           </div>
         ) : (
-          models.map((model) => (
-            <DropdownMenuItem
-              key={model.id}
-              onClick={() => onModelChange(model.id)}
-              className="flex flex-col items-start p-3 cursor-pointer"
-            >
-              <div className="flex items-center justify-between w-full">
-                <span className="font-medium">{model.name}</span>
-                {validSelectedModel === model.id && (
-                  <div className="h-2 w-2 bg-blue-500 rounded-full" />
+          <div className="space-y-1">
+            {models.map((model) => (
+              <DropdownMenuItem
+                key={model.id}
+                onClick={() => onModelChange(model.id)}
+                className="flex flex-col items-start p-3 cursor-pointer rounded-lg hover:bg-theme-bg-secondary transition-colors duration-150 border-none focus:bg-theme-bg-secondary"
+              >
+                <div className="flex items-center justify-between w-full mb-1">
+                  <span className="font-medium text-theme-text-primary text-sm">{model.name}</span>
+                  {validSelectedModel === model.id && (
+                    <div className="flex items-center space-x-1">
+                      <div className="h-2 w-2 bg-theme-accent rounded-full"></div>
+                      <span className="text-xs text-theme-accent font-medium">Active</span>
+                    </div>
+                  )}
+                </div>
+                {model.description && (
+                  <span className="text-xs text-theme-text-muted leading-relaxed mb-1">
+                    {model.description}
+                  </span>
                 )}
-              </div>
-              {model.description && (
-                <span className="text-xs text-gray-500 mt-1">
-                  {model.description}
-                </span>
-              )}
-              <span className="text-xs text-blue-500 mt-1">
-                Powered by OpenRouter
-              </span>
-            </DropdownMenuItem>
-          ))
+                <div className="flex items-center space-x-1">
+                  <div className="h-1 w-1 bg-theme-accent rounded-full"></div>
+                  <span className="text-xs text-theme-accent font-medium">
+                    Powered by OpenRouter
+                  </span>
+                </div>
+              </DropdownMenuItem>
+            ))}
+          </div>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
