@@ -6,7 +6,11 @@ import { ChatWindow } from "./ChatWindow";
 import { Id } from "../../../convex/_generated/dataModel";
 import { useChatPrefetch } from "../../hooks/useChatPrefetch";
 
-export const ChatInterface = () => {
+interface ChatInterfaceProps {
+  onNavigateToThemes?: () => void;
+}
+
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onNavigateToThemes }) => {
   const [selectedChatId, setSelectedChatId] = useState<Id<"chats"> | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -42,7 +46,7 @@ export const ChatInterface = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-background">
       {sidebarOpen && (
         <ChatSidebar
           chats={chats}
@@ -54,6 +58,7 @@ export const ChatInterface = () => {
           getChatData={getChatData}
           isPrefetched={isPrefetched}
           isPrefetchLoading={isPrefetchLoading}
+          onNavigateToThemes={onNavigateToThemes}
         />
       )}
       <ChatWindow

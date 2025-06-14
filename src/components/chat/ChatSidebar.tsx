@@ -42,6 +42,7 @@ interface ChatSidebarProps {
   getChatData: (chatId: Id<"chats">) => any;
   isPrefetched: (chatId: Id<"chats">) => boolean;
   isPrefetchLoading: boolean;
+  onNavigateToThemes?: () => void;
 }
 
 export const ChatSidebar = ({
@@ -54,6 +55,7 @@ export const ChatSidebar = ({
   getChatData,
   isPrefetched,
   isPrefetchLoading,
+  onNavigateToThemes,
 }: ChatSidebarProps) => {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -137,9 +139,9 @@ export const ChatSidebar = ({
       ? prefetchedData.hasBranches
       : hasBranchesQuery;
     return hasBranches ? (
-      <GitBranch className="h-5 w-5 text-indigo-400 flex-shrink-0" />
+      <GitBranch className="h-5 w-5 text-theme-accent flex-shrink-0" />
     ) : (
-      <MessageSquare className="h-5 w-5 text-sky-400 flex-shrink-0" />
+      <MessageSquare className="h-5 w-5 text-theme-primary flex-shrink-0" />
     );
   };
 
@@ -150,10 +152,10 @@ export const ChatSidebar = ({
       className={`group relative flex items-center gap-3 px-4 py-3 rounded-2xl shadow-md transition-all cursor-pointer
         ${
           selectedChatId === chat._id
-            ? "bg-gradient-to-r from-blue-100/80 to-blue-50 border-2 border-blue-400"
+            ? "bg-theme-accent/10 border-2 border-theme-accent"
             : isPinned
-              ? "bg-gradient-to-r from-yellow-50/80 to-white border border-yellow-200"
-              : "bg-white/80 border border-gray-200 hover:bg-blue-50/60"
+              ? "bg-theme-warning/5 border border-theme-warning/30"
+              : "bg-theme-bg-primary border border-theme-border-primary hover:bg-theme-bg-secondary"
         }
       `}
       style={{
@@ -172,31 +174,31 @@ export const ChatSidebar = ({
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <h3
-            className="font-semibold text-base truncate text-gray-900 max-w-[160px]"
+            className="font-semibold text-base truncate text-theme-text-primary max-w-[160px]"
             title={chat.title}
           >
             {chat.title}
           </h3>
           {isPinned && (
             <span title="Pinned">
-              <Pin className="h-4 w-4 text-yellow-500 drop-shadow" />
+              <Pin className="h-4 w-4 text-theme-warning drop-shadow" />
             </span>
           )}
           {isPrefetched(chat._id) && (
             <div
-              className="w-2 h-2 bg-green-500 rounded-full"
+              className="w-2 h-2 bg-theme-success rounded-full"
               title="Prefetched"
             />
           )}
         </div>
         <div className="flex items-center justify-between mt-1">
           <p
-            className="text-xs text-gray-500 truncate max-w-[120px]"
+            className="text-xs text-theme-text-muted truncate max-w-[120px]"
             title={chat.model}
           >
             {chat.model.split("/").pop()?.split(":")[0]}
           </p>
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-theme-text-muted">
             {formatDate(chat.updatedAt)}
           </span>
         </div>
@@ -213,7 +215,7 @@ export const ChatSidebar = ({
             aria-label="Unpin"
             title="Unpin"
           >
-            <PinOff className="h-4 w-4 text-yellow-500" />
+            <PinOff className="h-4 w-4 text-theme-warning" />
           </Button>
         ) : (
           <Button
@@ -226,7 +228,7 @@ export const ChatSidebar = ({
             aria-label="Pin"
             title="Pin"
           >
-            <Pin className="h-4 w-4 text-gray-400" />
+            <Pin className="h-4 w-4 text-theme-text-muted" />
           </Button>
         )}
         <Button
@@ -239,7 +241,7 @@ export const ChatSidebar = ({
           aria-label="Share"
           title="Share"
         >
-          <Share2 className="h-4 w-4 text-sky-500" />
+          <Share2 className="h-4 w-4 text-theme-accent" />
         </Button>
         <Button
           variant="ghost"
@@ -251,7 +253,7 @@ export const ChatSidebar = ({
           aria-label="Delete"
           title="Delete"
         >
-          <Trash2 className="h-4 w-4 text-rose-500" />
+          <Trash2 className="h-4 w-4 text-theme-error" />
         </Button>
       </div>
     </div>
@@ -259,7 +261,7 @@ export const ChatSidebar = ({
 
   return (
     <div
-      className="w-96 min-w-[320px] max-w-[100vw] h-full bg-gradient-to-b from-blue-100/60 via-white/80 to-white/90 border-r border-gray-200 flex flex-col"
+      className="w-96 min-w-[320px] max-w-[100vw] h-full bg-theme-bg-sidebar border-r border-theme-border-primary flex flex-col"
       style={{
         boxShadow:
           "0 4px 32px 0 rgba(80,120,255,0.08), 0 1.5px 4px 0 rgba(0,0,0,0.03)",
@@ -268,15 +270,15 @@ export const ChatSidebar = ({
       }}
     >
       {/* Header */}
-      <div className="p-5 border-b border-gray-200 bg-white/80">
+      <div className="p-5 border-b border-theme-border-primary bg-theme-bg-secondary">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-extrabold text-blue-700 tracking-tight">
+            <h2 className="text-xl font-extrabold text-theme-accent tracking-tight">
               AI Chat
             </h2>
             {isPrefetchLoading && (
               <div
-                className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"
+                className="w-2 h-2 bg-theme-accent rounded-full animate-pulse"
                 title="Prefetching..."
               />
             )}
@@ -292,19 +294,19 @@ export const ChatSidebar = ({
           onClick={() => {
             void onCreateChat();
           }}
-          className="w-full mb-3 bg-gradient-to-r from-blue-500 to-sky-400 hover:from-blue-600 hover:to-sky-500 text-white font-semibold shadow"
+          className="w-full mb-3 bg-theme-primary hover:bg-theme-primary-hover text-theme-text-inverse font-semibold shadow"
         >
           <Plus className="h-5 w-5 mr-2" />
           New Chat
         </Button>
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-theme-text-muted" />
           <Input
             placeholder="Search chats..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 rounded-lg border-gray-300 bg-white/80 focus:ring-2 focus:ring-blue-200"
+            className="pl-10 rounded-lg border-theme-border-primary bg-theme-bg-primary focus:ring-2 focus:ring-theme-border-focus"
           />
         </div>
       </div>
@@ -313,7 +315,7 @@ export const ChatSidebar = ({
       <ScrollArea className="flex-1">
         <div className="p-4">
           {filteredChats.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-theme-text-muted">
               {searchQuery ? "No chats found" : "No chats yet"}
             </div>
           ) : (
@@ -321,8 +323,8 @@ export const ChatSidebar = ({
               {pinnedChats.length > 0 && (
                 <div>
                   <div className="flex items-center mb-2 gap-1">
-                    <Pin className="h-4 w-4 text-yellow-500" />
-                    <span className="text-xs font-bold text-yellow-700 uppercase tracking-wide">
+                    <Pin className="h-4 w-4 text-theme-warning" />
+                    <span className="text-xs font-bold text-theme-warning uppercase tracking-wide">
                       Pinned
                     </span>
                   </div>
@@ -335,8 +337,8 @@ export const ChatSidebar = ({
                 <div>
                   {pinnedChats.length > 0 && (
                     <div className="flex items-center mb-2 mt-4 gap-1">
-                      <MessageSquare className="h-4 w-4 text-sky-400" />
-                      <span className="text-xs font-bold text-blue-700 uppercase tracking-wide">
+                      <MessageSquare className="h-4 w-4 text-theme-accent" />
+                      <span className="text-xs font-bold text-theme-accent uppercase tracking-wide">
                         All Chats
                       </span>
                     </div>
@@ -352,15 +354,39 @@ export const ChatSidebar = ({
       </ScrollArea>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-200 bg-white/80">
-        <div className="flex gap-3">
+      <div className="p-4 border-t border-theme-border-primary bg-theme-bg-secondary">
+        <div className="flex gap-3 mb-3">
           <UserPrompt />
           <KeyInput />
         </div>
 
-        <div className="text-xs text-gray-500 text-center space-y-1">
+        {/* Themes Button */}
+        {onNavigateToThemes && (
+          <Button
+            onClick={onNavigateToThemes}
+            variant="outline"
+            className="w-full mb-3 bg-theme-accent/5 hover:bg-theme-accent/10 border-theme-accent/30 text-theme-accent font-medium"
+          >
+            <svg 
+              className="h-4 w-4 mr-2" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" 
+              />
+            </svg>
+            Themes
+          </Button>
+        )}
+
+        <div className="text-xs text-theme-text-muted text-center space-y-1">
           {chats.length > 0 && (
-            <p className="text-green-600">
+            <p className="text-theme-success">
               ⚡{" "}
               {
                 chats.slice(0, 10).filter((chat) => isPrefetched(chat._id))

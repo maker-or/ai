@@ -50,9 +50,9 @@ export const StreamControls = ({ chatId }: StreamControlsProps) => {
   };
 
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+    <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mb-4">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-blue-900">
+        <span className="text-sm font-medium text-primary">
           AI Response Stream
         </span>
         <div className="flex items-center space-x-2">
@@ -76,13 +76,13 @@ export const StreamControls = ({ chatId }: StreamControlsProps) => {
       
       <div className="space-y-2">
         <Progress value={currentStream.progress} className="h-2" />
-        <div className="flex justify-between text-xs text-blue-700">
+        <div className="flex justify-between text-xs text-primary/80">
           <span>{currentStream.progress.toFixed(1)}% complete</span>
           <span>{currentStream.totalTokens} tokens</span>
         </div>
         
         {currentStream.isPaused && (
-          <div className="flex items-center text-xs text-orange-600">
+          <div className="flex items-center text-xs text-accent">
             <Pause className="h-3 w-3 mr-1" />
             Stream paused - you can resume anytime
           </div>
