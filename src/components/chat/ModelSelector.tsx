@@ -79,17 +79,17 @@ export const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorPro
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button 
-          variant="outline" 
-          className="w-auto bg-theme-bg-secondary hover:bg-theme-bg-primary border-theme-border-primary text-theme-text-primary shadow-sm hover:shadow transition-all duration-200"
+         
+          className="w-auto  text-theme-text-primary transition-all duration-200"
         >
-          <Bot className="h-4 w-4 mr-2 text-theme-accent" />
+    
           <span className="max-w-32 truncate font-medium">{selectedModelInfo?.name}</span>
           <ChevronDown className="h-4 w-4 ml-2 text-theme-text-muted" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="w-80 bg-theme-bg-primary border-theme-border-primary shadow-lg rounded-container p-2"
+        className="w-80 bg-theme-bg-primary shadow-lg rounded-container p-2"
       >
         {isLoading ? (
           <div className="p-6 text-center">

@@ -12,7 +12,7 @@ import {
   Search,
   Trash2,
   Share2,
-  X,
+  Columns2,
   GitBranch,
   Pin,
   PinOff,
@@ -261,7 +261,7 @@ export const ChatSidebar = ({
 
   return (
     <div
-      className="w-96 min-w-[320px] max-w-[100vw] h-full bg-theme-bg-sidebar border-r border-theme-border-primary flex flex-col"
+      className="w-[24svw]  m-2  rounded-xl max-w-[100vw] h-[95svh] bg-theme-bg-sidebar border-2 border-theme-border-primary  flex flex-col"
       style={{
         boxShadow:
           "0 4px 32px 0 rgba(80,120,255,0.08), 0 1.5px 4px 0 rgba(0,0,0,0.03)",
@@ -270,22 +270,11 @@ export const ChatSidebar = ({
       }}
     >
       {/* Header */}
-      <div className="p-5 border-b border-theme-border-primary bg-theme-bg-secondary">
+      <div className="p-5 border-b border-theme-border-primary ">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl font-extrabold text-theme-accent tracking-tight">
-              AI Chat
-            </h2>
-            {isPrefetchLoading && (
-              <div
-                className="w-2 h-2 bg-theme-accent rounded-full animate-pulse"
-                title="Prefetching..."
-              />
-            )}
-          </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center  justify-between gap-2">
             <Button variant="ghost" size="icon" onClick={onToggleSidebar}>
-              <X className="h-5 w-5" />
+              <Columns2 className="h-5 w-5" />
             </Button>
             <SignOutButton />
           </div>
@@ -354,7 +343,7 @@ export const ChatSidebar = ({
       </ScrollArea>
 
       {/* Footer */}
-      <div className="p-4 border-t border-theme-border-primary bg-theme-bg-secondary">
+      <div className="p-4 border-t border-theme-border-primary ">
         <div className="flex gap-3 mb-3">
           <UserPrompt />
           <KeyInput />
@@ -367,17 +356,17 @@ export const ChatSidebar = ({
             variant="outline"
             className="w-full mb-3 bg-theme-accent/5 hover:bg-theme-accent/10 border-theme-accent/30 text-theme-accent font-medium"
           >
-            <svg 
-              className="h-4 w-4 mr-2" 
-              fill="none" 
-              stroke="currentColor" 
+            <svg
+              className="h-4 w-4 mr-2"
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"
               />
             </svg>
             Themes

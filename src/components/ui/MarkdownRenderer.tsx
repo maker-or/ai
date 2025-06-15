@@ -1,170 +1,172 @@
 // MarkdownRenderer.tsx
-import React from "react";
-import ReactMarkdown from "react-markdown";
+import { memo, useMemo, useState, createContext, useContext } from "react";
+import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import remarkDeflist from "remark-deflist";
 import rehypeKatex from "rehype-katex";
-import rehypeHighlight from "rehype-highlight";
-import rehypeRaw from "rehype-raw";
-import "katex/dist/katex.min.css";
-import "highlight.js/styles/github.css";
+import ShikiHighlighter from "react-shiki";
+import type { ComponentProps } from "react";
+import type { ExtraProps } from "react-markdown";
+import { Check, Copy } from "lucide-react";
 
-interface MarkdownRendererProps {
-  chunk: string;
-}
+type CodeComponentProps = ComponentProps<"code"> & ExtraProps;
+type MarkdownSize = "default" | "small";
 
-const components = {
-  h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h1 className="text-3xl font-bold mt-8 mb-4 text-foreground" {...props} />
-  ),
-  h2: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h2 className="text-2xl font-bold mt-7 mb-3 text-foreground" {...props} />
-  ),
-  h3: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h3 className="text-xl font-semibold mt-6 mb-2 text-foreground" {...props} />
-  ),
-  h4: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h4 className="text-lg font-semibold mt-5 mb-2 text-foreground" {...props} />
-  ),
-  h5: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h5
-      className="text-base font-semibold mt-4 mb-1 text-foreground"
-      {...props}
-    />
-  ),
-  h6: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h6 className="text-sm font-semibold mt-3 mb-1 text-foreground" {...props} />
-  ),
-  p: (props: React.HTMLAttributes<HTMLParagraphElement>) => (
-    <p className="mb-4 leading-relaxed text-foreground/90" {...props} />
-  ),
-  ul: (props: React.HTMLAttributes<HTMLUListElement>) => (
-    <ul
-      className="list-disc list-inside my-3 pl-6 space-y-1 text-foreground/90"
-      {...props}
-    />
-  ),
-  ol: (props: React.HTMLAttributes<HTMLOListElement>) => (
-    <ol
-      className="list-decimal list-inside my-3 pl-6 space-y-1 text-foreground/90"
-      {...props}
-    />
-  ),
-  li: (props: React.LiHTMLAttributes<HTMLLIElement>) => (
-    <li className="leading-relaxed" {...props} />
-  ),
-  a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-    <a
-      {...props}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-primary underline focus:outline-2 focus:outline-primary"
-    />
-  ),
-  em: (props: React.HTMLAttributes<HTMLElement>) => (
-    <em className="italic" {...props} />
-  ),
-  strong: (props: React.HTMLAttributes<HTMLElement>) => (
-    <strong className="font-bold" {...props} />
-  ),
-  del: (props: React.HTMLAttributes<HTMLElement>) => (
-    <del className="line-through text-muted" {...props} />
-  ),
-  blockquote: (props: React.BlockquoteHTMLAttributes<HTMLElement>) => (
-    <blockquote
-      className="border-l-4 border-primary/40 pl-4 py-2 my-4 bg-surface/50 text-foreground/80"
-      {...props}
-    />
-  ),
-  code: (props: React.HTMLAttributes<HTMLElement>) => {
-    const { children, className, ...rest } = props;
-    const match = className && /language-(\w+)/.exec(className);
-    return match ? (
-      <pre
-        className="bg-surface text-foreground rounded-md p-4 overflow-x-auto my-4 text-sm border border-border"
-        tabIndex={0}
-      >
-        <code className={className} {...rest}>
-          {children}
-        </code>
-      </pre>
-    ) : (
-      <code
-        className="bg-surface text-accent px-1 py-0.5 rounded text-sm font-mono"
-        {...rest}
-      >
-        {children}
-      </code>
-    );
-  },
-  table: (props: React.TableHTMLAttributes<HTMLTableElement>) => (
-    <div className="overflow-x-auto my-1">
-      <table
-        className="min-w-full border-collapse border border-border text-foreground"
-        {...props}
-      />
-    </div>
-  ),
-  thead: (props: React.HTMLAttributes<HTMLTableSectionElement>) => (
-    <thead className="bg-surface" {...props} />
-  ),
-  tbody: (props: React.HTMLAttributes<HTMLTableSectionElement>) => (
-    <tbody {...props} />
-  ),
-  tr: (props: React.HTMLAttributes<HTMLTableRowElement>) => (
-    <tr className="even:bg-surface/30" {...props} />
-  ),
-  th: (props: React.ThHTMLAttributes<HTMLTableCellElement>) => (
-    <th
-      className="border border-border bg-surface px-4 py-2 text-left font-semibold"
-      {...props}
-    />
-  ),
-  td: (props: React.TdHTMLAttributes<HTMLTableCellElement>) => (
-    <td className="border border-border px-4 py-2" {...props} />
-  ),
-  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    <img className="max-w-full rounded my-2" {...props} />
-  ),
-  hr: (props: React.HTMLAttributes<HTMLHRElement>) => (
-    <hr className="my-8 border-border" {...props} />
-  ),
-  details: (props: React.DetailsHTMLAttributes<HTMLElement>) => (
-    <details
-      className="my-4 border border-border rounded-lg overflow-hidden"
-      {...props}
-    />
-  ),
-  summary: (props: React.HTMLAttributes<HTMLElement>) => (
-    <summary
-      className="px-4 py-2 bg-surface cursor-pointer font-semibold"
-      {...props}
-    />
-  ),
-  sup: (props: React.HTMLAttributes<HTMLElement>) => (
-    <sup className="text-xs align-super" {...props} />
-  ),
-  dl: (props: React.HTMLAttributes<HTMLDListElement>) => (
-    <dl className="my-4" {...props} />
-  ),
-  dt: (props: React.HTMLAttributes<HTMLElement>) => (
-    <dt className="font-semibold" {...props} />
-  ),
-  dd: (props: React.HTMLAttributes<HTMLElement>) => (
-    <dd className="ml-4 mb-2" {...props} />
-  ),
+// Context to pass size down to components
+const MarkdownSizeContext = createContext<MarkdownSize>("default");
+
+const components: Components = {
+  code: CodeBlock as Components["code"],
+  pre: ({ children }) => <>{children}</>,
 };
 
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ chunk }) => (
-  <ReactMarkdown
-    remarkPlugins={[remarkGfm, remarkMath, remarkDeflist]}
-    rehypePlugins={[rehypeKatex, rehypeHighlight, rehypeRaw]}
-    components={components}
-    skipHtml={false}
-  >
-    {chunk}
-  </ReactMarkdown>
+function CodeBlock({ children, className, ...props }: CodeComponentProps) {
+  const size = useContext(MarkdownSizeContext);
+  const match = /language-(\w+)/.exec(className || "");
+
+  // Helper function to safely extract string content from children
+  const getChildrenAsString = (children: React.ReactNode): string => {
+    if (typeof children === "string") {
+      return children;
+    }
+    if (typeof children === "number") {
+      return String(children);
+    }
+    if (Array.isArray(children)) {
+      return children.map((child) => getChildrenAsString(child)).join("");
+    }
+    if (children && typeof children === "object" && "props" in children) {
+      // Handle React elements - extract text content
+      return getChildrenAsString((children as any).props?.children) || "";
+    }
+    return "";
+  };
+
+  if (match) {
+    const lang = match[1];
+    const codeString = getChildrenAsString(children);
+
+    return (
+      <div className="rounded-none">
+        <Codebar lang={lang} codeString={codeString} />
+        <ShikiHighlighter
+          language={lang}
+          theme={"material-theme-darker"}
+          className="text-sm font-mono rounded-b-md"
+          showLanguage={false}
+        >
+          {codeString}
+        </ShikiHighlighter>
+      </div>
+    );
+  }
+
+  const inlineCodeClasses =
+    size === "small"
+      ? "mx-0.5 overflow-auto rounded-md px-1 py-0.5 bg-primary/10 text-foreground font-mono text-xs"
+      : "mx-0.5 overflow-auto rounded-md px-2 py-1 bg-primary/10 text-foreground font-mono";
+
+  return (
+    <code className={inlineCodeClasses} {...props}>
+      {children}
+    </code>
+  );
+}
+
+function Codebar({ lang, codeString }: { lang: string; codeString: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(codeString);
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Failed to copy code to clipboard:", error);
+    }
+  };
+
+  const handleCopyClick = () => {
+    copyToClipboard().catch((error) => {
+      console.error("Copy operation failed:", error);
+    });
+  };
+
+  return (
+    <div className="flex justify-between bg-theme-bg-secondary items-center px-4 py-2  text-foreground rounded-t-md">
+      <span className="text-sm font-mono">{lang}</span>
+      <button
+        onClick={handleCopyClick}
+        className="text-sm cursor-pointer"
+        aria-label="Copy code"
+      >
+        {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+      </button>
+    </div>
+  );
+}
+
+function PureMarkdownRendererBlock({ content }: { content: string }) {
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm, [remarkMath]]}
+      rehypePlugins={[rehypeKatex]}
+      components={components}
+    >
+      {content}
+    </ReactMarkdown>
+  );
+}
+
+const MarkdownRendererBlock = memo(
+  PureMarkdownRendererBlock,
+  (prevProps, nextProps) => {
+    if (prevProps.content !== nextProps.content) return false;
+    return true;
+  },
 );
+
+MarkdownRendererBlock.displayName = "MarkdownRendererBlock";
+
+const MarkdownRenderer = memo(
+  ({
+    chunks,
+    id,
+    size = "default",
+  }: {
+    chunks: string[];
+    id: string;
+    size?: MarkdownSize;
+  }) => {
+    // Defensive: ensure chunks is always an array
+    const safeChunks = Array.isArray(chunks) ? chunks : [];
+
+    const wrapperClasses = "markdown-content max-w-2xl mx-auto p-4   ";
+
+    const proseClasses =
+      size === "small"
+        ? "prose prose-sm dark:prose-invert break-words max-w-none w-full prose-code:before:content-none prose-code:after:content-none"
+        : "prose prose-base dark:prose-invert break-words max-w-none w-full prose-code:before:content-none prose-code:after:content-none";
+
+    return (
+      <MarkdownSizeContext.Provider value={size}>
+        <div className={wrapperClasses}>
+          <div className={proseClasses}>
+            {safeChunks.map((chunk, index) => (
+              <MarkdownRendererBlock
+                content={chunk}
+                key={`${id}-chunk-${index}`}
+              />
+            ))}
+          </div>
+        </div>
+      </MarkdownSizeContext.Provider>
+    );
+  },
+);
+
+MarkdownRenderer.displayName = "MarkdownRenderer";
 
 export default MarkdownRenderer;
