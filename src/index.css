@@ -1,9 +1,12 @@
+/* index.css */
+
+/* Tailwind base styles */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Theme variables */
 :root {
-  /* Default theme CSS variables - will be dynamically updated by ThemeProvider */
   --theme-bg-primary: #ffffff;
   --theme-bg-secondary: #f8fafc;
   --theme-bg-sidebar: #f1f5f9;
@@ -13,6 +16,8 @@
   --theme-text-secondary: #64748b;
   --theme-text-muted: #94a3b8;
   --theme-text-inverse: #ffffff;
+  --theme-text-heading: #e46bab;
+  --theme-text-block: #2c2632;
 
   --theme-border-primary: #e2e8f0;
   --theme-border-secondary: #f1f5f9;
@@ -54,13 +59,14 @@ body {
     "Noto Color Emoji";
   color: var(--theme-text-primary);
   background: var(--theme-bg-primary);
-  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-              background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Global theme transition for smooth switching */
 body.theme-transitioning * {
-  transition: 
+  transition:
     color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
@@ -84,66 +90,187 @@ body.theme-transitioning * {
   @apply bg-transparent p-0;
 }
 
-/* Scrollbar styling */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: var(--theme-bg-secondary);
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--theme-border-primary);
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--theme-text-muted);
-}
-
 /* Markdown Content Styling */
 .markdown-content {
-  /* Ensure proper line breaks and spacing */
   word-wrap: break-word;
   overflow-wrap: break-word;
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1.5rem 1.25rem;
 }
 
-.markdown-content h1:first-child,
-.markdown-content h2:first-child,
-.markdown-content h3:first-child,
-.markdown-content p:first-child {
-  margin-top: 0;
+/* Headings */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  font-weight: 700;
+  color: var(--theme-text-heading);
 }
 
-.markdown-content h1:last-child,
-.markdown-content h2:last-child,
-.markdown-content h3:last-child,
-.markdown-content p:last-child {
-  margin-bottom: 0;
+.markdown-content h1 {
+  font-size: 1.6rem;
+}
+.markdown-content h2 {
+  font-size: 1.3rem;
+}
+.markdown-content h3 {
+  font-size: 1.1rem;
+}
+.markdown-content h4 {
+  font-size: 1rem;
+}
+.markdown-content h5 {
+  font-size: 0.95rem;
+}
+.markdown-content h6 {
+  font-size: 0.9rem;
 }
 
-/* Code block styling with better contrast */
+/* Paragraphs and lists */
+.markdown-content p,
+.markdown-content ul,
+.markdown-content ol,
+.markdown-content pre,
+.markdown-content blockquote {
+  color: var(--theme-chat-assistant-text);
+  font-size: 16px;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 1.25em;
+  color: #0c0c0c;
+}
+
+.markdown-content li {
+  color: var(--theme-chat-assistant-text);
+}
+
+/* Bullet and number color */
+.prose ul li::marker,
+.markdown-content ul li::marker {
+  color: #c3d0ff !important;
+  font-size: 1.1em;
+}
+.prose ol li::marker,
+.markdown-content ol li::marker {
+  color: #7ee787 !important;
+  font-size: 1.1em;
+}
+
+/* Blockquotes */
+.markdown-content blockquote {
+  border-left: 4px solid #8b5cf6;
+  background: rgba(139, 92, 246, 0.08);
+  padding-left: 1em;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+  margin-left: 0;
+  margin-right: 0;
+  border-radius: 0.5em;
+  color: #d1d5db;
+}
+
+/* Code blocks */
 .markdown-content pre {
-  background-color: var(--theme-bg-secondary) !important;
-  border: 1px solid var(--theme-border-primary);
-  color: var(--theme-text-primary);
+  border: 1px solid #2a2139;
+  color: #f8f8f2;
+  border-radius: 0.5em;
+  font-size: 0.98em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  padding: 0.75em 1em;
+  overflow-x: auto;
 }
 
 .markdown-content code {
   font-family:
     "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New",
     monospace;
+  background: #232136;
+  color: #f8f8f2;
+  border-radius: 0.25em;
+  padding: 0.1em 0.3em;
+  font-size: 0.97em;
 }
 
-/* Inline code styling */
+/* Inline code */
 .markdown-content :not(pre) > code {
-  background-color: var(--theme-bg-secondary);
-  color: var(--theme-accent);
-  padding: 0.2em 0.4em;
-  border-radius: 3px;
-  font-size: 0.875em;
+  background-color: var(--theme-text-block);
+  color: #f8f8f2;
+  padding: 0.15em 0.4em;
+  border-radius: 0.25em;
+  font-size: 0.97em;
+}
+
+/* Tables */
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.5em 0;
+  color: var(--theme-chat-assistant-text);
+}
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid var(--theme-chat-assistant-text);
+  padding: 0.4em 0.7em;
+}
+.markdown-content th {
+  background: var(--theme-bg-sidebar);
+  font-weight: 600;
+}
+
+/* Images */
+.markdown-content img {
+  max-width: 100%;
+  border-radius: 16px;
+  border-color: #8b5cf6;
+  margin: 0.5em 0;
+  padding: 1em;
+  background-color: #0c0c0c;
+}
+
+/* Horizontal rule */
+.markdown-content hr {
+  border: none;
+  border-top: 1px solid #a1b4ff;
+  margin: 1.5em 0;
+}
+
+/* Details/Summary */
+.markdown-content details {
+  margin: 0.5em 0;
+  border: 1px solid #2a2139;
+  border-radius: 0.5em;
+  background: #232136;
+  padding: 0.5em 1em;
+}
+.markdown-content summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #fff;
+  padding: 0.2em 0;
+}
+
+/* Superscript */
+.markdown-content sup {
+  font-size: 0.8em;
+  vertical-align: super;
+}
+
+/* Definition lists */
+.markdown-content dl {
+  margin: 0.2em 0;
+}
+.markdown-content dt {
+  font-weight: 600;
+}
+.markdown-content dd {
+  margin-left: 1em;
 }
 
 /* Streaming animation for last element */
@@ -164,7 +291,7 @@ body.theme-transitioning * {
   }
 }
 
-/* Enhanced animations for theme switching */
+/* Animations for theme switching */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -175,7 +302,6 @@ body.theme-transitioning * {
     transform: translateY(0);
   }
 }
-
 @keyframes slideInFromBottom {
   from {
     opacity: 0;
@@ -186,7 +312,6 @@ body.theme-transitioning * {
     transform: translateY(0);
   }
 }
-
 @keyframes slideInFromTop {
   from {
     opacity: 0;
@@ -197,7 +322,6 @@ body.theme-transitioning * {
     transform: translateY(0);
   }
 }
-
 @keyframes zoomIn {
   from {
     opacity: 0;
@@ -213,23 +337,23 @@ body.theme-transitioning * {
 .animate-in {
   animation-fill-mode: both;
 }
-
 .fade-in {
   animation-name: fadeIn;
 }
-
 .slide-in-from-bottom {
   animation-name: slideInFromBottom;
 }
-
 .slide-in-from-bottom-4 {
   animation-name: slideInFromBottom;
 }
-
 .slide-in-from-top {
   animation-name: slideInFromTop;
 }
-
 .zoom-in {
   animation-name: zoomIn;
+}
+
+textarea:focus {
+  outline: none !important;
+  box-shadow: none !important;
 }

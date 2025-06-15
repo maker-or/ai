@@ -1,9 +1,9 @@
-import React from 'react';
-import { Button } from './ui/button';
-import { ArrowLeft } from 'lucide-react';
-import { useTheme } from '../hooks/useTheme';
-import { themeCategories } from '../themes';
-import { ThemeCategorySection } from './ui/ThemeCategorySection';
+import React from "react";
+import { Button } from "./ui/button";
+import { ArrowLeft } from "lucide-react";
+import { useTheme } from "../hooks/useTheme";
+import { themeCategories } from "../themes";
+import { ThemeCategorySection } from "./ui/ThemeCategorySection";
 
 interface ThemesPageProps {
   onBack: () => void;
@@ -30,9 +30,6 @@ export const ThemesPage: React.FC<ThemesPageProps> = ({ onBack }) => {
               <h1 className="text-2xl font-bold text-theme-text-primary">
                 Choose Your Theme
               </h1>
-              <p className="text-theme-text-secondary text-sm">
-                Current: <span className="text-theme-accent font-medium">{currentTheme.name}</span>
-              </p>
             </div>
           </div>
         </div>
@@ -41,16 +38,19 @@ export const ThemesPage: React.FC<ThemesPageProps> = ({ onBack }) => {
       {/* Content */}
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Current Theme Preview */}
-        <div className="mb-8 p-6 bg-theme-bg-secondary rounded-lg border border-theme-border-primary animate-in slide-in-from-bottom duration-400" style={{ animationDelay: '100ms' }}>
+        <div
+          className="mb-8 p-6 bg-theme-bg-secondary rounded-lg border border-theme-border-primary animate-in slide-in-from-bottom duration-400"
+          style={{ animationDelay: "100ms" }}
+        >
           <div className="flex items-center gap-4">
-            <div 
+            <div
               className="w-16 h-16 rounded-full border-4 border-theme-primary flex-shrink-0 transition-all duration-300 hover:scale-105"
               style={{
-                background: currentTheme.preview.gradient || 
-                  (currentTheme.preview.secondary 
+                background:
+                  currentTheme.preview.gradient ||
+                  (currentTheme.preview.secondary
                     ? `linear-gradient(135deg, ${currentTheme.preview.primary} 0%, ${currentTheme.preview.secondary} 100%)`
-                    : currentTheme.preview.primary
-                  )
+                    : currentTheme.preview.primary),
               }}
             />
             <div>
@@ -71,10 +71,10 @@ export const ThemesPage: React.FC<ThemesPageProps> = ({ onBack }) => {
         {/* Theme Categories */}
         <div className="space-y-12">
           {themeCategories.map((category, categoryIndex) => (
-            <div 
+            <div
               key={category.id}
               className="animate-in slide-in-from-bottom duration-500"
-              style={{ animationDelay: `${200 + (categoryIndex * 100)}ms` }}
+              style={{ animationDelay: `${200 + categoryIndex * 100}ms` }}
             >
               <ThemeCategorySection
                 category={category}
@@ -85,25 +85,6 @@ export const ThemesPage: React.FC<ThemesPageProps> = ({ onBack }) => {
         </div>
 
         {/* Footer Info */}
-        <div className="mt-12 p-6 bg-theme-bg-secondary rounded-lg border border-theme-border-secondary">
-          <h3 className="text-lg font-medium text-theme-text-primary mb-2">
-            About Themes
-          </h3>
-          <div className="text-theme-text-secondary text-sm space-y-2">
-            <p>
-              • <strong>Light Themes:</strong> Perfect for daytime use with bright, clean interfaces
-            </p>
-            <p>
-              • <strong>Dark Themes:</strong> Easy on the eyes in low-light environments
-            </p>
-            <p>
-              • <strong>Colorful Themes:</strong> Vibrant and unique color schemes for personalization
-            </p>
-            <p className="mt-4 text-theme-text-muted">
-              Your theme preference is automatically saved and will persist across sessions.
-            </p>
-          </div>
-        </div>
       </main>
     </div>
   );

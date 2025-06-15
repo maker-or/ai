@@ -17,18 +17,24 @@ export const SendButton = memo(
     }, [onClick, disabled, isLoading]);
 
     return (
-      <Button
+      <div className="bg-theme-bg-primary rounded-full p-1">
+              <div className="bg-theme-bg-secondary rounded-full">
+              <Button
         onClick={handleClick} // What to do when clicked
         disabled={disabled || isLoading} // When to disable the button
         size="icon"
-        className="h-[60px] w-[60px]" // Tailwind CSS for sizing
+        className="h-[40px] w-[40px]" // Tailwind CSS for sizing
       >
         {isLoading ? (
-          <StopIcon size={24} className="animate-spin text-muted" />
+          <StopIcon  size={24} className="animate-spin text-muted" />
         ) : (
           <ArrowUpIcon size={24} />
         )}
       </Button>
+      </div>
+      </div>
+
+
     );
   },
 );

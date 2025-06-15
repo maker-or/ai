@@ -3,6 +3,7 @@ import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Textarea } from "../ui/textarea";
 import { SendButton } from "./SendButton";
+import { ModelSelector } from "./ModelSelector";
 import { Id } from "../../../convex/_generated/dataModel";
 
 interface MessageInputProps {
@@ -10,10 +11,21 @@ interface MessageInputProps {
   disabled?: boolean;
   isLoading?: boolean;
   chatId: Id<"chats"> | null;
+  selectedModel?: string;
+  onModelChange?: (model: string) => void;
+  showInline?: boolean;
 }
 
 export const MessageInput = memo(
-  ({ onSendMessage, disabled = false, isLoading = false, chatId }: MessageInputProps) => {
+  ({
+    onSendMessage,
+    disabled = false,
+    isLoading = false,
+    chatId,
+    selectedModel = "nvidia/llama-3.3-nemotron-super-49b-v1:free",
+    onModelChange,
+    showInline = false,
+  }: MessageInputProps) => {
     const [message, setMessage] = useState("");
 
     const setTypingStatus = useMutation(api.sync.setTypingStatus);
@@ -49,37 +61,53 @@ export const MessageInput = memo(
       }
     }, [onSendMessage, disabled, isLoading]);
 
-    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        handleSend();
-      }
-    }, [handleSend]);
+    const handleKeyDown = useCallback(
+      (e: React.KeyboardEvent) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          handleSend();
+        }
+      },
+      [handleSend],
+    );
 
     return (
-      <div className="border-t border-border p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-end space-x-3">
-            <div className="flex-1">
+      <div className="p-4">
+        <div className="max-w-4xl  mx-auto">
+          <div className="rounded-[24px] border-4 border-theme-border-primary bg-theme-bg-secondary">
+            {/* Part 1: Input Field */}
+            <div className="bg-theme-bg-sidebar rounded-t-[24px] border-b border-theme-border-primary  shadow-sm">
               <Textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Type your message..."
-                className="min-h-[60px] max-h-32 resize-none"
+                className="bg-theme-bg-sidebar border-none rounded-t-[20px] focus:ring-none focus:outline-none min-h-[100px] max-h-40 resize-none p-5 w-full transition-all"
                 disabled={disabled || isLoading}
               />
             </div>
-            <SendButton
-              onClick={handleSend}
-              disabled={false}
-              isLoading={isLoading}
-            />
-          </div>
 
-          <div className="flex items-center justify-between mt-2 text-xs text-muted">
-            <span>Press Enter to send, Shift+Enter for new line</span>
-            <span>{message.length}/4000</span>
+            {/* Part 2: Model Selector and Send Button */}
+            <div className="flex p-2  items-center justify-between">
+              {/* Left side - Model Selector */}
+              <div className="flex items-center">
+                {onModelChange && (
+                  <ModelSelector
+                    selectedModel={selectedModel}
+                    onModelChange={onModelChange}
+                  />
+                )}
+              </div>
+
+              {/* Right side - Send Button */}
+              <div className="flex items-center space-x-2">
+                <SendButton
+                  onClick={handleSend}
+                  disabled={disabled || isLoading || !message.trim()}
+                  isLoading={isLoading}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

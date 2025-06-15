@@ -1,17 +1,13 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useMutation, useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
-import { Avatar, AvatarFallback } from "../ui/avatar";
-import { Menu, Bot, User, Copy, GitBranch } from "lucide-react";
+import { Menu, Copy, GitBranch } from "lucide-react";
 import { Id } from "../../../convex/_generated/dataModel";
 import { toast } from "sonner";
-import { SignOutButton } from "../../SignOutButton";
-import { ModelSelector } from "./ModelSelector";
 import { BranchSelector } from "./BranchSelector";
-import { StreamControls } from "./StreamControls";
-import { SyncIndicator } from "./SyncIndicator";
+// import { StreamControls } from "./StreamControls";
 import { MessageInput } from "./MessageInput";
 import MarkdownRenderer from "../ui/MarkdownRenderer";
 import { useChatData } from "../../hooks/useChatPrefetch";
@@ -58,6 +54,7 @@ export const ChatWindow = ({
 
   const addMessage = useMutation(api.messages.addMessage);
   const updateChat = useMutation(api.chats.updateChat);
+  const createChat = useMutation(api.chats.createChat);
   const streamChatCompletion = useAction(api.ai.streamChatCompletion);
   const setTypingStatus = useMutation(api.sync.setTypingStatus);
   console.log(setTypingStatus);
@@ -78,18 +75,32 @@ export const ChatWindow = ({
 
   const handleSendMessage = useCallback(
     async (messageText: string) => {
-      if (!messageText.trim() || !chatId || isLoading) return;
+      if (!messageText.trim() || isLoading) return;
 
       const currentMessage = messageText.trim();
       setIsLoading(true);
 
       try {
+        let currentChatId = chatId;
+
+        // If no chat exists, create one first
+        if (!currentChatId) {
+          const title =
+            currentMessage.length > 50
+              ? currentMessage.substring(0, 50) + "..."
+              : currentMessage;
+          currentChatId = await createChat({
+            title,
+            model: selectedModel,
+          });
+        }
+
         // Get current messages from ref to avoid dependency
         const currentMessages = messagesRef.current || [];
 
         // Add user message
         const messageId = await addMessage({
-          chatId,
+          chatId: currentChatId,
           role: "user",
           content: currentMessage,
           parentId: selectedMessageId || undefined,
@@ -97,13 +108,13 @@ export const ChatWindow = ({
         });
 
         // Update chat title if it's the first message
-        if (currentMessages.length === 0) {
+        if (currentMessages.length === 0 && chatId) {
           const title =
             currentMessage.length > 50
               ? currentMessage.substring(0, 50) + "..."
               : currentMessage;
           await updateChat({
-            chatId,
+            chatId: currentChatId,
             title,
             model: selectedModel,
           });
@@ -120,7 +131,7 @@ export const ChatWindow = ({
 
         // Stream AI response
         await streamChatCompletion({
-          chatId,
+          chatId: currentChatId,
           messages: chatMessages,
           model: selectedModel,
           parentMessageId: messageId,
@@ -139,6 +150,7 @@ export const ChatWindow = ({
       chatId,
       isLoading,
       addMessage,
+      createChat,
       selectedMessageId,
       activeBranch?._id,
       updateChat,
@@ -167,20 +179,42 @@ export const ChatWindow = ({
   if (!chatId) {
     return (
       <div className="flex-1 flex flex-col">
-        {/* Header */}
+        {/* Header with sidebar toggle */}
+        <header className="bg-theme-bg-primary p-4 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            {!sidebarOpen && (
+              <Button variant="ghost" size="icon" onClick={onToggleSidebar}>
+                <Menu className="h-5 w-5" />
+              </Button>
+            )}
+          </div>
 
+          {/* Branch Selector in top-right corner - always visible but disabled when no chat */}
+          <div className="flex items-center space-x-2">
+            <BranchSelector
+              chatId={null}
+              currentMessageId={selectedMessageId}
+              branchDialogOpen={branchDialogOpen}
+              setBranchDialogOpen={setBranchDialogOpen}
+            />
+          </div>
+        </header>
 
         {/* Empty State */}
         <div className="flex-1 flex items-center justify-center bg-theme-bg-chat">
-          <div className="text-center max-w-md">
-            <Bot className="h-16 w-16 mx-auto mb-4 text-theme-text-muted" />
-            <h2 className="text-2xl font-semibold mb-2 text-theme-text-primary">Welcome to AI Chat</h2>
- 
-            <div className="mb-4">
-              <p className="text-sm text-muted mb-2">Available Models:</p>
-              <ModelSelector
+          <div className="text-center items-center justify-center max-w-full w-full px-4">
+            {/* Message Input in empty state */}
+            <div className="max-w-3xl mx-auto">
+              <MessageInput
+                onSendMessage={(msg) => {
+                  void handleSendMessage(msg);
+                }}
+                disabled={false}
+                isLoading={isLoading}
+                chatId={null}
                 selectedModel={selectedModel}
                 onModelChange={setSelectedModel}
+                showInline={false}
               />
             </div>
           </div>
@@ -192,28 +226,28 @@ export const ChatWindow = ({
   return (
     <div className="flex-1 flex flex-col bg-theme-bg-chat">
       {/* Header */}
-      <header className="bg-theme-bg-primary border-b border-theme-border-primary p-4 flex items-center justify-between">
+      <header className="bg-theme-bg-primary p-4 flex items-center justify-between">
         <div className="flex items-center space-x-3">
           {!sidebarOpen && (
             <Button variant="ghost" size="icon" onClick={onToggleSidebar}>
               <Menu className="h-5 w-5" />
             </Button>
           )}
-          <div>
-            <h1 className="text-lg font-semibold text-theme-text-primary">{chat?.title || "Chat"}</h1>
-            <div className="flex items-center space-x-2">
-              <p className="text-sm text-theme-text-secondary">{chat?.model}</p>
-              <SyncIndicator chatId={chatId} />
-            </div>
-          </div>
         </div>
+
+        {/* Branch Selector in top-right corner */}
         <div className="flex items-center space-x-2">
-          <SignOutButton />
+          <BranchSelector
+            chatId={chatId}
+            currentMessageId={selectedMessageId}
+            branchDialogOpen={branchDialogOpen}
+            setBranchDialogOpen={setBranchDialogOpen}
+          />
         </div>
       </header>
 
       {/* Stream Controls */}
-      <StreamControls chatId={chatId} />
+      {/* <StreamControls chatId={chatId} /> */}
 
       {/* Messages */}
       <ScrollArea className="flex-1 p-4">
@@ -225,21 +259,11 @@ export const ChatWindow = ({
                 msg.role === "user" ? "flex-row-reverse space-x-reverse" : ""
               }`}
             >
-              <Avatar className="w-8 h-8">
-                <AvatarFallback>
-                  {msg.role === "user" ? (
-                    <User className="h-4 w-4" />
-                  ) : (
-                    <Bot className="h-4 w-4" />
-                  )}
-                </AvatarFallback>
-              </Avatar>
-
               <div
                 className={`group max-w-3xl rounded-lg p-4 ${
                   msg.role === "user"
                     ? "bg-theme-chat-user-bubble text-theme-chat-user-text"
-                    : "bg-theme-chat-assistant-bubble text-theme-chat-assistant-text"
+                    : " text-theme-chat-assistant-text"
                 }`}
               >
                 <div className="message-content">
@@ -247,12 +271,13 @@ export const ChatWindow = ({
                     <div className="whitespace-pre-wrap">
                       {msg.content as string}
                     </div>
-                  ) : Array.isArray(msg.content) ? (
-                    msg.content.map((chunk: string, idx: number) => (
-                      <MarkdownRenderer key={idx} chunk={chunk} />
-                    ))
                   ) : (
-                    <MarkdownRenderer chunk={msg.content as string} />
+                    <MarkdownRenderer
+                      chunks={
+                        Array.isArray(msg.content) ? msg.content : [msg.content]
+                      }
+                      id={msg._id}
+                    />
                   )}
                 </div>
 
@@ -290,19 +315,10 @@ export const ChatWindow = ({
       </ScrollArea>
 
       {/* Controls at bottom */}
-      <div className="border-t border-theme-border-primary px-4 py-2">
+      <div className=" px-4 py-2">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <BranchSelector
-              chatId={chatId}
-              currentMessageId={selectedMessageId}
-              branchDialogOpen={branchDialogOpen}
-              setBranchDialogOpen={setBranchDialogOpen}
-            />
-            <ModelSelector
-              selectedModel={selectedModel}
-              onModelChange={setSelectedModel}
-            />
+            {/* Model selector removed from here - now integrated in MessageInput */}
           </div>
         </div>
       </div>
@@ -315,6 +331,9 @@ export const ChatWindow = ({
         disabled={false}
         isLoading={isLoading}
         chatId={chatId}
+        selectedModel={selectedModel}
+        onModelChange={setSelectedModel}
+        showInline={false}
       />
     </div>
   );
