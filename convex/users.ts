@@ -22,3 +22,23 @@ export const getPrompt = query({
     return user?.prompt ?? "";
   },
 });
+
+export const getByOK = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const user = await ctx.db.get(userId);
+    return user?.encryptedApiKey ?? "";
+  },
+});
+
+export const setOnboardingComplete = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+    await ctx.db.patch(userId, { onboardingComplete: true });
+  },
+});

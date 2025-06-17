@@ -1,6 +1,7 @@
 import { Authenticated, Unauthenticated, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { SignInForm } from "./SignInForm";
+import { OnboardingGate } from "./components/onboarding/OnboardingGate";
 
 import { Toaster } from "sonner";
 import { AppRouter } from "./components/AppRouter";
@@ -8,13 +9,20 @@ import { AppRouter } from "./components/AppRouter";
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {/* <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+      </head> */}
       <Authenticated>
-        <AppRouter />
+        <OnboardingGate>
+          <AppRouter />
+        </OnboardingGate>
       </Authenticated>
       <Unauthenticated>
-        <header className="sticky top-0 z-10 bg-surface/80 backdrop-blur-sm h-16 flex justify-between items-center border-b border-border shadow-sm px-4">
-          <h2 className="text-xl font-semibold text-primary">Chef AI Chat</h2>
-        </header>
         <main className="flex-1 flex items-center justify-center p-8">
           <div className="w-full max-w-md mx-auto">
             <Content />
@@ -40,7 +48,9 @@ function Content() {
   return (
     <div className="flex flex-col gap-section">
       <div className="text-center">
-        <h1 className="text-5xl font-bold text-primary mb-4">Cook with Chef</h1>
+        <h1 className="text-5xl  text-primary mb-4">
+          Ready to <span className="font-serif italic">Nerd</span> out?
+        </h1>
       </div>
       <SignInForm />
     </div>

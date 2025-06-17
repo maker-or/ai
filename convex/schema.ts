@@ -28,6 +28,7 @@ const applicationTables = {
     name: v.optional(v.string()),
     prompt: v.optional(v.string()),
     encryptedApiKey: v.optional(v.string()),
+    onboardingComplete: v.optional(v.boolean()),
   }).index("email", ["email"]),
 
   messages: defineTable({
@@ -69,6 +70,19 @@ const applicationTables = {
     typingUsers: v.array(v.string()),
     lastUpdated: v.number(),
   }).index("by_chat", ["chatId"]),
+
+  attachments: defineTable({
+    chatId: v.id("chats"),
+    messageId: v.id("messages"),
+    userId: v.id("users"),
+    fileName: v.optional(v.string()),
+    fileType: v.optional(v.string()),
+    url: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_chat", ["chatId"])
+    .index("by_message", ["messageId"]),
 
   branches: defineTable({
     chatId: v.id("chats"),

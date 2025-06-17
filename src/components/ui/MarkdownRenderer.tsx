@@ -1,5 +1,5 @@
 // MarkdownRenderer.tsx
-import { memo, useMemo, useState, createContext, useContext } from "react";
+import { memo, useState, createContext, useContext } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";

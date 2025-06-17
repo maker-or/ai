@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@100..900&display=swap");
 /* index.css */
 
 /* Tailwind base styles */
@@ -165,14 +166,14 @@ body.theme-transitioning * {
 /* Blockquotes */
 .markdown-content blockquote {
   border-left: 4px solid #8b5cf6;
-  background: rgba(139, 92, 246, 0.08);
+  background: var(--theme-bg-sidebar);
   padding-left: 1em;
   padding-top: 0.3em;
   padding-bottom: 0.3em;
   margin-left: 0;
   margin-right: 0;
   border-radius: 0.5em;
-  color: #d1d5db;
+  color: var(--theme-chat-assistant-bubble);
 }
 
 /* Code blocks */
@@ -237,7 +238,7 @@ body.theme-transitioning * {
 /* Horizontal rule */
 .markdown-content hr {
   border: none;
-  border-top: 1px solid #a1b4ff;
+  border-top: 1px solid var(--theme-text-heading);
   margin: 1.5em 0;
 }
 

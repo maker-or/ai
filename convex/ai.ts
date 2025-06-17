@@ -4,22 +4,7 @@ import { v } from "convex/values";
 import { action } from "./_generated/server";
 import { api, internal } from "./_generated/api";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { useQuery } from "convex/react";
-
 import OpenAI from "openai";
-
-// Use OpenRouter for all models
-const getOpenRouterClient = () => {
-  const openRouterKey = process.env.OPENROUTER_API_KEY || "";
-  if (!openRouterKey) {
-    throw new Error("OPENROUTER_API_KEY environment variable is required");
-  }
-
-  return new OpenAI({
-    baseURL: "https://openrouter.ai/api/v1",
-    apiKey: openRouterKey,
-  });
-};
 
 export const streamChatCompletion = action({
   args: {
@@ -37,11 +22,62 @@ export const streamChatCompletion = action({
     model: v.string(),
     parentMessageId: v.optional(v.id("messages")),
     branchId: v.optional(v.id("branches")),
+    webSearch: v.optional(v.boolean()),
   },
   handler: async (ctx, args): Promise<any> => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
     const prompt = await ctx.runQuery(api.users.getPrompt, {});
+
+    // Optionally augment with web search
+    if (args.webSearch) {
+      const userMessage = args.messages.find((m) => m.role === "user");
+      if (userMessage) {
+        try {
+          // Only require and instantiate Exa if needed
+          const { Exa } = await import("exa-js");
+          const exaApiKey =
+            process.env.EXA_API_KEY || process.env.EXASEARCH_API_KEY || "";
+          if (!exaApiKey)
+            throw new Error(
+              "EXA_API_KEY or EXASEARCH_API_KEY environment variable is required",
+            );
+          const exa = new Exa(exaApiKey);
+
+          const response = await exa.searchAndContents(userMessage.content, {
+            type: "neural",
+            numResults: 5,
+            text: true,
+          });
+          const searchResults =
+            response.results
+              ?.map(
+                (r: any, i: number) =>
+                  `Result ${i + 1}: ${r.text || r.snippet || ""}`,
+              )
+              .join("\n\n") || "No results found.";
+
+          args.messages = [
+            ...args.messages,
+            {
+              role: "system",
+              content: `Web search results:\n${searchResults}`,
+            },
+          ];
+        } catch (error) {
+          console.error("Web search error:", error);
+          args.messages = [
+            ...args.messages,
+            {
+              role: "system",
+              content: "Web search failed. Proceeding without search results.",
+            },
+          ];
+        }
+      } else {
+        console.error("No user content found for web search.");
+      }
+    }
 
     // Create assistant message
     const assistantMessageId: any = await ctx.runMutation(
@@ -77,7 +113,15 @@ export const streamChatCompletion = action({
     );
 
     try {
-      const client = getOpenRouterClient();
+      // OpenRouter client
+      const openRouterKey = process.env.OPENROUTER_API_KEY || "";
+      if (!openRouterKey) {
+        throw new Error("OPENROUTER_API_KEY environment variable is required");
+      }
+      const client = new OpenAI({
+        baseURL: "https://openrouter.ai/api/v1",
+        apiKey: openRouterKey,
+      });
 
       const response = await client.chat.completions.create({
         model: args.model,
@@ -90,7 +134,7 @@ export const streamChatCompletion = action({
       let fullContent = "";
       let tokenCount = 0;
 
-      for await (const chunk of response) {
+      for await (const chunk of response as any) {
         const content = chunk.choices?.[0]?.delta?.content;
 
         if (content) {
@@ -158,6 +202,11 @@ export const getAvailableModels = action({
         id: "deepseek/deepseek-chat-v3-0324:free",
         name: "DeepSeek Chat",
         description: "Fast reasoning model by DeepSeek",
+      },
+      {
+        id: "microsoft/phi-4-reasoning-plus:free",
+        name: "Microsoft Phi-4 Reasoning Plus",
+        description: "Advanced open-source model by Microsoft",
       },
     ];
   },

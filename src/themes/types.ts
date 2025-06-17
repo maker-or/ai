@@ -53,7 +53,7 @@ export interface ThemeColors {
 export interface Theme {
   id: string;
   name: string;
-  category: "light" | "dark" | "colorful";
+  category: "colorful";
   description?: string;
   colors: ThemeColors;
   // Preview color for theme selector circles
@@ -64,7 +64,7 @@ export interface Theme {
   };
 }
 
-export type ThemeCategory = "light" | "dark" | "colorful";
+export type ThemeCategory = "colorful";
 
 export interface ThemeContextType {
   currentTheme: Theme;

@@ -1,3 +1,5 @@
+// MessageInput.tsx
+
 import React, { useState, useCallback, memo, useEffect, useRef } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -5,9 +7,10 @@ import { Textarea } from "../ui/textarea";
 import { SendButton } from "./SendButton";
 import { ModelSelector } from "./ModelSelector";
 import { Id } from "../../../convex/_generated/dataModel";
+import { Globe } from "lucide-react";
 
 interface MessageInputProps {
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string, web?: boolean) => void;
   disabled?: boolean;
   isLoading?: boolean;
   chatId: Id<"chats"> | null;
@@ -27,6 +30,7 @@ export const MessageInput = memo(
     showInline = false,
   }: MessageInputProps) => {
     const [message, setMessage] = useState("");
+    const [webActive, setWebActive] = useState(false);
 
     const setTypingStatus = useMutation(api.sync.setTypingStatus);
 
@@ -56,10 +60,11 @@ export const MessageInput = memo(
     const handleSend = useCallback(() => {
       const trimmedMessage = messageRef.current.trim();
       if (trimmedMessage && !disabled && !isLoading) {
-        onSendMessage(trimmedMessage);
+        onSendMessage(trimmedMessage, webActive);
         setMessage(""); // Clear the input after sending
+        setWebActive(false); // Optionally reset web mode after send
       }
-    }, [onSendMessage, disabled, isLoading]);
+    }, [onSendMessage, disabled, isLoading, webActive]);
 
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent) => {
@@ -71,12 +76,16 @@ export const MessageInput = memo(
       [handleSend],
     );
 
+    const handleToggleWeb = () => {
+      setWebActive((prev) => !prev);
+    };
+
     return (
       <div className="p-4">
-        <div className="max-w-4xl  mx-auto">
-          <div className="rounded-[24px] border-4 border-theme-border-primary bg-theme-bg-secondary">
+        <div className="max-w-3xl p-3 mx-auto">
+          <div className="rounded-[24px] max-w-2xl border-4 border-theme-border-primary bg-theme-bg-secondary">
             {/* Part 1: Input Field */}
-            <div className="bg-theme-bg-sidebar rounded-t-[24px] border-b border-theme-border-primary  shadow-sm">
+            <div className="bg-theme-bg-sidebar rounded-t-[24px] border-b border-theme-border-primary shadow-sm">
               <Textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -88,15 +97,32 @@ export const MessageInput = memo(
             </div>
 
             {/* Part 2: Model Selector and Send Button */}
-            <div className="flex p-2  items-center justify-between">
-              {/* Left side - Model Selector */}
-              <div className="flex items-center">
-                {onModelChange && (
-                  <ModelSelector
-                    selectedModel={selectedModel}
-                    onModelChange={onModelChange}
-                  />
-                )}
+            <div className="flex p-2 items-center  justify-between">
+              {/* Left side - Model Selector and globe */}
+              <div className="flex gap-2 justify-center items-center">
+                <div className="flex items-center">
+                  {onModelChange && (
+                    <ModelSelector
+                      selectedModel={selectedModel}
+                      onModelChange={onModelChange}
+                    />
+                  )}
+                </div>
+
+                {/* Globe Icon */}
+                <Globe
+                  className={`cursor-pointer transition-colors ${
+                    webActive
+                      ? "text-theme-chat-assistant-bubble" // Active color
+                      : "text-theme-bg-primary" // Inactive color
+                  }`}
+                  onClick={handleToggleWeb}
+                  style={{
+                    filter: webActive
+                      ? "drop-shadow(0 0 4px #3b82f6)" // Optional glow effect
+                      : undefined,
+                  }}
+                />
               </div>
 
               {/* Right side - Send Button */}

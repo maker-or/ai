@@ -6,6 +6,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ["Inter var", ...fontFamily.sans],
+        serif: ["Instrument Serif", "serif"],
       },
       borderRadius: {
         DEFAULT: "8px",
@@ -55,7 +56,7 @@ module.exports = {
           warning: "var(--theme-warning)",
           error: "var(--theme-error)",
         },
-        
+
         // Modern design system aliases for convenience
         background: "var(--theme-bg-primary)",
         foreground: "var(--theme-text-primary)",
@@ -64,7 +65,7 @@ module.exports = {
         border: "var(--theme-border-primary)",
         input: "var(--theme-border-primary)",
         ring: "var(--theme-border-focus)",
-        
+
         // Semantic color aliases
         destructive: "var(--theme-error)",
       },

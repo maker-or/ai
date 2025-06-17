@@ -1,16 +1,18 @@
+// ChatWindow.tsx
+
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useMutation, useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
-import { Menu, Copy, GitBranch } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Id } from "../../../convex/_generated/dataModel";
 import { toast } from "sonner";
 import { BranchSelector } from "./BranchSelector";
-// import { StreamControls } from "./StreamControls";
 import { MessageInput } from "./MessageInput";
 import MarkdownRenderer from "../ui/MarkdownRenderer";
 import { useChatData } from "../../hooks/useChatPrefetch";
+import { GitBranch, Copy } from "lucide-react";
 
 interface PrefetchedChatData {
   chat: any;
@@ -19,15 +21,10 @@ interface PrefetchedChatData {
   streamingSession: any;
   hasBranches: boolean;
 }
-type Message = {
-  _id: string;
-  role: "user" | "ai";
-  content: string | string[]; // user: string, ai: string[]
-  createdAt: number;
-};
 
 interface ChatWindowProps {
   chatId: Id<"chats"> | null;
+  setChatId: (id: Id<"chats">) => void;
   onToggleSidebar: () => void;
   sidebarOpen: boolean;
   prefetchedChatData?: PrefetchedChatData;
@@ -35,6 +32,7 @@ interface ChatWindowProps {
 
 export const ChatWindow = ({
   chatId,
+  setChatId,
   onToggleSidebar,
   sidebarOpen,
   prefetchedChatData,
@@ -46,7 +44,8 @@ export const ChatWindow = ({
   const [selectedMessageId, setSelectedMessageId] = useState<
     Id<"messages"> | undefined
   >(undefined);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   // Use prefetched data when available, fallback to regular queries
   const { chat, activeBranch, messages, streamingSession, isPrefetched } =
@@ -56,25 +55,55 @@ export const ChatWindow = ({
   const updateChat = useMutation(api.chats.updateChat);
   const createChat = useMutation(api.chats.createChat);
   const streamChatCompletion = useAction(api.ai.streamChatCompletion);
-  const setTypingStatus = useMutation(api.sync.setTypingStatus);
-  console.log(setTypingStatus);
 
   // Use ref to store current messages to avoid dependency issues
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // --- SMART SCROLL LOGIC ---
+  // Track if we should scroll up by 100svh after a new message
+  const [shouldScrollUp, setShouldScrollUp] = useState(false);
+
+  // Helper: is user at bottom?
+  const isUserAtBottom = () => {
+    const container = scrollAreaRef.current;
+    if (!container) return false;
+    return (
+      container.scrollHeight - container.scrollTop - container.clientHeight < 50
+    );
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, streamingSession]);
+  // Track previous messages length to detect new message
+  const prevMessagesLength = useRef(messages.length);
 
-  // Handle typing indicator - moved to MessageInput component
+  useEffect(() => {
+    if (messages.length > prevMessagesLength.current) {
+      // New message added
+      if (isUserAtBottom()) {
+        setShouldScrollUp(true);
+      }
+    }
+    prevMessagesLength.current = messages.length;
+  }, [messages.length]);
+
+  // Scroll up by 100svh ONCE if shouldScrollUp is true
+  useEffect(() => {
+    if (shouldScrollUp) {
+      const container = scrollAreaRef.current;
+      if (container) {
+        container.scrollBy({
+          top: -window.innerHeight, // 100svh
+          behavior: "smooth",
+        });
+      }
+      setShouldScrollUp(false);
+    }
+  }, [shouldScrollUp]);
+
+  // --- END SMART SCROLL LOGIC ---
 
   const handleSendMessage = useCallback(
-    async (messageText: string) => {
+    async (messageText: string, web = false) => {
       if (!messageText.trim() || isLoading) return;
 
       const currentMessage = messageText.trim();
@@ -93,6 +122,7 @@ export const ChatWindow = ({
             title,
             model: selectedModel,
           });
+          setChatId(currentChatId);
         }
 
         // Get current messages from ref to avoid dependency
@@ -136,6 +166,7 @@ export const ChatWindow = ({
           model: selectedModel,
           parentMessageId: messageId,
           branchId: activeBranch?._id,
+          webSearch: web,
         });
       } catch (err) {
         const errorMessage =
@@ -148,6 +179,7 @@ export const ChatWindow = ({
     },
     [
       chatId,
+      setChatId,
       isLoading,
       addMessage,
       createChat,
@@ -170,7 +202,6 @@ export const ChatWindow = ({
 
   const handleCreateBranch = (messageId: Id<"messages">) => {
     setSelectedMessageId(messageId);
-    // Directly trigger branch creation dialog
     setBranchDialogOpen(true);
   };
 
@@ -188,8 +219,6 @@ export const ChatWindow = ({
               </Button>
             )}
           </div>
-
-          {/* Branch Selector in top-right corner - always visible but disabled when no chat */}
           <div className="flex items-center space-x-2">
             <BranchSelector
               chatId={null}
@@ -199,12 +228,9 @@ export const ChatWindow = ({
             />
           </div>
         </header>
-
-        {/* Empty State */}
         <div className="flex-1 flex items-center justify-center bg-theme-bg-chat">
           <div className="text-center items-center justify-center max-w-full w-full px-4">
-            {/* Message Input in empty state */}
-            <div className="max-w-3xl mx-auto">
+            <div className="max-w-2xl mx-auto">
               <MessageInput
                 onSendMessage={(msg) => {
                   void handleSendMessage(msg);
@@ -225,17 +251,7 @@ export const ChatWindow = ({
 
   return (
     <div className="flex-1 flex flex-col bg-theme-bg-chat">
-      {/* Header */}
       <header className="bg-theme-bg-primary p-4 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          {!sidebarOpen && (
-            <Button variant="ghost" size="icon" onClick={onToggleSidebar}>
-              <Menu className="h-5 w-5" />
-            </Button>
-          )}
-        </div>
-
-        {/* Branch Selector in top-right corner */}
         <div className="flex items-center space-x-2">
           <BranchSelector
             chatId={chatId}
@@ -245,12 +261,8 @@ export const ChatWindow = ({
           />
         </div>
       </header>
-
-      {/* Stream Controls */}
       {/* <StreamControls chatId={chatId} /> */}
-
-      {/* Messages */}
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea className="flex-1  p-4" ref={scrollAreaRef}>
         <div className="max-w-4xl mx-auto space-y-6">
           {messages.map((msg) => (
             <div
@@ -280,11 +292,7 @@ export const ChatWindow = ({
                     />
                   )}
                 </div>
-
                 <div className="flex items-center justify-between mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-xs opacity-70">
-                    {new Date(msg.createdAt).toLocaleTimeString()}
-                  </span>
                   <div className="flex items-center space-x-1">
                     <Button
                       variant="ghost"
@@ -294,36 +302,23 @@ export const ChatWindow = ({
                     >
                       <Copy className="h-3 w-3" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleCreateBranch(msg._id)}
-                      className="h-6 w-6"
-                    >
-                      <GitBranch className="h-3 w-3" />
-                    </Button>
+                    {msg.role === "assistant" && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleCreateBranch(msg._id)}
+                        className="h-6 w-6"
+                      >
+                        <GitBranch className="h-3 w-3" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
           ))}
-
-          {/* Streaming indicator with live content */}
-
-          <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
-
-      {/* Controls at bottom */}
-      <div className=" px-4 py-2">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            {/* Model selector removed from here - now integrated in MessageInput */}
-          </div>
-        </div>
-      </div>
-
-      {/* Input */}
       <MessageInput
         onSendMessage={(msg) => {
           void handleSendMessage(msg);

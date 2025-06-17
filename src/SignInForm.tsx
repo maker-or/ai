@@ -18,7 +18,7 @@ export function SignInForm() {
     <div className="w-full">
       <div className="flex flex-col gap-2">
         <button
-          className="auth-button bg-black rounded-md text-white flex items-center justify-center gap-2 py-4"
+          className="auth-button bg-theme-chat-assistant-text rounded-lg text-theme-bg-primary flex items-center justify-center gap-2 py-4"
           onClick={() => void signIn("github")}
         >
           <GitHubIcon />
