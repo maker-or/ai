@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@100..900&display=swap");
+/* Fonts loaded asynchronously in HTML, remove blocking import */
 /* index.css */
 
 /* Tailwind base styles */
