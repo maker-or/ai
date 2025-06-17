@@ -19,7 +19,7 @@ export function SignInForm() {
       <div className="flex flex-col gap-2">
         <button
           className="auth-button bg-theme-chat-assistant-text rounded-lg text-theme-bg-primary flex items-center justify-center gap-2 py-4"
-          onClick={() => void signIn("github")}
+          onClick={() => void signIn("github", { redirectUrl: window.location.origin })}
         >
           <GitHubIcon />
           Continue with GitHub
