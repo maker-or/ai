@@ -13,93 +13,89 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [currentTheme, setCurrentTheme] = useState<Theme>(defaultTheme);
-
-  // Load theme from localStorage on mount
-  useEffect(() => {
+  const [currentTheme, setCurrentTheme] = useState<Theme>(() => {
+    // Initialize theme synchronously to avoid flash
     try {
       const savedThemeId = localStorage.getItem(THEME_STORAGE_KEY);
       if (savedThemeId) {
         const savedTheme = getThemeById(savedThemeId);
-        setCurrentTheme(savedTheme);
-        applyThemeToDocument(savedTheme);
-      } else {
-        // Apply default theme
-        applyThemeToDocument(defaultTheme);
+        // Apply immediately for SSR/hydration consistency
+        requestAnimationFrame(() => applyThemeToDocument(savedTheme));
+        return savedTheme;
       }
     } catch (error) {
       console.warn('Failed to load theme from localStorage:', error);
-      applyThemeToDocument(defaultTheme);
     }
+    // Apply default theme immediately
+    requestAnimationFrame(() => applyThemeToDocument(defaultTheme));
+    return defaultTheme;
+  });
+
+  // Only run effect for cleanup, theme is already applied
+  useEffect(() => {
+    // Ensure theme is applied (fallback for edge cases)
+    applyThemeToDocument(currentTheme);
   }, []);
 
-  // Function to apply theme CSS variables to document
+  // Optimized function to apply theme CSS variables to document
   const applyThemeToDocument = (theme: Theme) => {
     const root = document.documentElement;
     const { colors } = theme;
 
-    // Add transition effect for smooth theme switching
-    root.style.setProperty('--theme-transition', 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)');
-    
-    // Add a temporary class to enable transitions
-    document.body.classList.add('theme-transitioning');
+    // Batch DOM updates using a single style update
+    const cssVars = {
+      '--theme-bg-primary': colors.background.primary,
+      '--theme-bg-secondary': colors.background.secondary,
+      '--theme-bg-sidebar': colors.background.sidebar,
+      '--theme-bg-chat': colors.background.chat,
+      '--theme-text-primary': colors.text.primary,
+      '--theme-text-secondary': colors.text.secondary,
+      '--theme-text-muted': colors.text.muted,
+      '--theme-text-inverse': colors.text.inverse,
+      '--theme-border-primary': colors.border.primary,
+      '--theme-border-secondary': colors.border.secondary,
+      '--theme-border-focus': colors.border.focus,
+      '--theme-primary': colors.primary.DEFAULT,
+      '--theme-primary-hover': colors.primary.hover,
+      '--theme-primary-active': colors.primary.active,
+      '--theme-chat-user-bubble': colors.chat.userBubble,
+      '--theme-chat-assistant-bubble': colors.chat.assistantBubble,
+      '--theme-chat-user-text': colors.chat.userText,
+      '--theme-chat-assistant-text': colors.chat.assistantText,
+      '--theme-accent': colors.accent.DEFAULT,
+      '--theme-accent-hover': colors.accent.hover,
+      '--theme-success': colors.success,
+      '--theme-warning': colors.warning,
+      '--theme-error': colors.error,
+      '--color-light': colors.background.primary,
+      '--color-dark': colors.text.primary,
+    };
 
-    // Background colors
-    root.style.setProperty('--theme-bg-primary', colors.background.primary);
-    root.style.setProperty('--theme-bg-secondary', colors.background.secondary);
-    root.style.setProperty('--theme-bg-sidebar', colors.background.sidebar);
-    root.style.setProperty('--theme-bg-chat', colors.background.chat);
-
-    // Text colors
-    root.style.setProperty('--theme-text-primary', colors.text.primary);
-    root.style.setProperty('--theme-text-secondary', colors.text.secondary);
-    root.style.setProperty('--theme-text-muted', colors.text.muted);
-    root.style.setProperty('--theme-text-inverse', colors.text.inverse);
-
-    // Border colors
-    root.style.setProperty('--theme-border-primary', colors.border.primary);
-    root.style.setProperty('--theme-border-secondary', colors.border.secondary);
-    root.style.setProperty('--theme-border-focus', colors.border.focus);
-
-    // Primary colors
-    root.style.setProperty('--theme-primary', colors.primary.DEFAULT);
-    root.style.setProperty('--theme-primary-hover', colors.primary.hover);
-    root.style.setProperty('--theme-primary-active', colors.primary.active);
-
-    // Chat colors
-    root.style.setProperty('--theme-chat-user-bubble', colors.chat.userBubble);
-    root.style.setProperty('--theme-chat-assistant-bubble', colors.chat.assistantBubble);
-    root.style.setProperty('--theme-chat-user-text', colors.chat.userText);
-    root.style.setProperty('--theme-chat-assistant-text', colors.chat.assistantText);
-
-    // Accent colors
-    root.style.setProperty('--theme-accent', colors.accent.DEFAULT);
-    root.style.setProperty('--theme-accent-hover', colors.accent.hover);
-
-    // Status colors
-    root.style.setProperty('--theme-success', colors.success);
-    root.style.setProperty('--theme-warning', colors.warning);
-    root.style.setProperty('--theme-error', colors.error);
-
-    // Legacy variables for backward compatibility
-    root.style.setProperty('--color-light', colors.background.primary);
-    root.style.setProperty('--color-dark', colors.text.primary);
-
-    // Remove transition class after a delay
-    setTimeout(() => {
-      document.body.classList.remove('theme-transitioning');
-    }, 300);
+    // Apply all CSS variables in a single batch
+    Object.entries(cssVars).forEach(([property, value]) => {
+      root.style.setProperty(property, value);
+    });
   };
 
-  // Function to change theme
+  // Function to change theme with optimized transitions
   const setTheme = (themeId: string) => {
     try {
       const newTheme = getThemeById(themeId);
-      setCurrentTheme(newTheme);
-      applyThemeToDocument(newTheme);
       
-      // Save to localStorage
-      localStorage.setItem(THEME_STORAGE_KEY, themeId);
+      // Add transition effect for smooth theme switching
+      document.body.classList.add('theme-transitioning');
+      
+      // Use requestAnimationFrame for smooth visual updates
+      requestAnimationFrame(() => {
+        setCurrentTheme(newTheme);
+        applyThemeToDocument(newTheme);
+        
+        // Save to localStorage asynchronously
+        setTimeout(() => {
+          localStorage.setItem(THEME_STORAGE_KEY, themeId);
+          document.body.classList.remove('theme-transitioning');
+        }, 300);
+      });
     } catch (error) {
       console.error('Failed to set theme:', error);
     }

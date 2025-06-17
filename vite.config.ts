@@ -40,4 +40,47 @@ window.addEventListener('message', async (message) => {
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    // Optimize chunks for better loading
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separate vendor chunks for better caching
+          vendor: ['react', 'react-dom'],
+          convex: ['convex/react', '@convex-dev/auth/react'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select'],
+          markdown: ['react-markdown', 'rehype-highlight', 'rehype-katex'],
+        },
+      },
+    },
+    // Enable source maps for debugging but keep them small
+    sourcemap: mode === 'development',
+    // Optimize CSS
+    cssCodeSplit: true,
+    // Set chunk size warning limit
+    chunkSizeWarningLimit: 1000,
+  },
+  // Performance optimizations
+  optimizeDeps: {
+    // Pre-bundle these dependencies
+    include: [
+      'react',
+      'react-dom',
+      'convex/react',
+      '@convex-dev/auth/react',
+      'sonner',
+      'lucide-react',
+    ],
+    // Exclude problematic dependencies from pre-bundling
+    exclude: ['@vite/client', '@vite/env'],
+  },
+  // Server optimizations for development
+  server: {
+    // Enable HTTP/2 for better multiplexing
+    http2: false, // Keep false for better compatibility
+    // Improve HMR performance
+    hmr: {
+      overlay: false, // Reduce visual noise during development
+    },
+  },
 }));

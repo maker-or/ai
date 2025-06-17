@@ -3,14 +3,71 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Preconnect to font services for faster loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Preload critical fonts -->
+    <link 
+      rel="preload" 
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@100..900&display=swap" 
+      as="style" 
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link 
+        href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@100..900&display=swap" 
+        rel="stylesheet"
+      />
+    </noscript>
+    
+    <!-- Preload critical CSS -->
+    <link rel="preload" href="/src/index.css" as="style" />
     <link rel="stylesheet" href="/src/index.css" />
+    
+    <!-- Add initial loading state styles to prevent FOUC -->
+    <style>
+      /* Critical above-the-fold styles */
+      #root {
+        min-height: 100vh;
+        background: #ffffff;
+        color: #171717;
+      }
+      
+      /* Loading spinner for immediate feedback */
+      .initial-loader {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 32px;
+        height: 32px;
+        border: 2px solid #e2e8f0;
+        border-top: 2px solid #0c0c0c;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+      }
+      
+      /* Hide loader once React takes over */
+      .react-loaded .initial-loader {
+        display: none;
+      }
+    </style>
 
     <title>Chef</title>
-
     <meta property="og:image" content="/og-preview.png" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Immediate loading feedback -->
+      <div class="initial-loader"></div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
