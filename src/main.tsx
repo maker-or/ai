@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { ConvexReactClient } from "convex/react";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { measurePerformance } from "./lib/performance";
+import { measurePerformance } from "./lib/performance.ts";
 import "./index.css";
 import App from "./App";
 
