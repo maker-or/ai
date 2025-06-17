@@ -1,36 +1,11 @@
 import { Theme, ThemeCategory } from "./types";
-import { lightTheme, warmLightTheme, coolLightTheme } from "./light";
-import { darkTheme, trueDarkTheme, warmDarkTheme } from "./dark";
-import {
-  blueOceanTheme,
-  purpleGalaxyTheme,
-  greenForestTheme,
-  roseGoldTheme,
-  sunsetOrangeTheme,
-  ocenpurpleTheme,
-  nightTheme,
-} from "./variants";
+
+import { ocenpurpleTheme, nightTheme } from "./variants";
 
 // All available themes
-export const themes: Theme[] = [
-  // Light themes
-  lightTheme,
-  warmLightTheme,
-  coolLightTheme,
+export const themes: Theme[] = [ocenpurpleTheme, nightTheme];
 
-  // Dark themes
-  darkTheme,
-  trueDarkTheme,
-  warmDarkTheme,
-
-  // Colorful themes
-
-  ocenpurpleTheme,
-  nightTheme,
-];
-
-// Default theme (current light theme)
-export const defaultTheme = lightTheme;
+export const defaultTheme = nightTheme;
 
 // Helper functions
 export const getThemeById = (id: string): Theme => {
@@ -41,8 +16,6 @@ export const getThemesByCategory = (category: ThemeCategory): Theme[] => {
   return themes.filter((theme) => theme.category === category);
 };
 
-export const getLightThemes = () => getThemesByCategory("light");
-export const getDarkThemes = () => getThemesByCategory("dark");
 export const getColorfulThemes = () => getThemesByCategory("colorful");
 
 // Theme categories for UI organization
@@ -51,16 +24,6 @@ export const themeCategories: Array<{
   name: string;
   description: string;
 }> = [
-  {
-    id: "light",
-    name: "Light Themes",
-    description: "Bright themes perfect for daytime use",
-  },
-  {
-    id: "dark",
-    name: "Dark Themes",
-    description: "Dark themes easy on the eyes in low light",
-  },
   {
     id: "colorful",
     name: "Colorful Themes",
@@ -79,6 +42,8 @@ export const validateTheme = (theme: Theme): boolean => {
     "text.secondary",
     "text.muted",
     "text.inverse",
+    "text.heading",
+    "text.block",
     "border.primary",
     "border.secondary",
     "border.focus",
@@ -136,8 +101,6 @@ export const getThemePropertyReport = () => {
     totalThemes: themes.length,
     validThemes: validThemes.length,
     themesByCategory: {
-      light: themes.filter((t) => t.category === "light").length,
-      dark: themes.filter((t) => t.category === "dark").length,
       colorful: themes.filter((t) => t.category === "colorful").length,
     },
     propertyCompleteness: "100%",
@@ -151,6 +114,5 @@ export const getThemePropertyReport = () => {
 
 // Export everything
 export * from "./types";
-export * from "./light";
-export * from "./dark";
+
 export * from "./variants";

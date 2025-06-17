@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import {
@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { ChevronDown, Bot } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 interface ModelSelectorProps {
   selectedModel: string;
@@ -32,12 +32,20 @@ const DEFAULT_MODELS: Model[] = [
     name: "DeepSeek Chat",
     description: "Fast reasoning model by DeepSeek",
   },
+  {
+    id: "microsoft/phi-4-reasoning-plus:free",
+    name: "Microsoft Phi-4 Reasoning Plus",
+    description: "Advanced open-source model by Microsoft",
+  },
 ];
 
-export const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorProps) => {
+export const ModelSelector = ({
+  selectedModel,
+  onModelChange,
+}: ModelSelectorProps) => {
   const [models, setModels] = useState<Model[]>(DEFAULT_MODELS);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const getAvailableModels = useAction(api.ai.getAvailableModels);
 
   useEffect(() => {
@@ -61,12 +69,15 @@ export const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorPro
       }
     };
 
-    fetchModels();
+    void fetchModels();
   }, [getAvailableModels]);
 
   // Ensure selected model is valid, default to first model if not
-  const validSelectedModel = models.find(m => m.id === selectedModel) ? selectedModel : models[0]?.id;
-  const selectedModelInfo = models.find(m => m.id === validSelectedModel) || models[0];
+  const validSelectedModel = models.find((m) => m.id === selectedModel)
+    ? selectedModel
+    : models[0]?.id;
+  const selectedModelInfo =
+    models.find((m) => m.id === validSelectedModel) || models[0];
 
   // Update parent if selected model changed
   useEffect(() => {
@@ -78,17 +89,15 @@ export const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorPro
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-         
-          className="w-auto  text-theme-text-primary transition-all duration-200"
-        >
-    
-          <span className="max-w-32 truncate font-medium">{selectedModelInfo?.name}</span>
+        <Button className="w-auto  text-theme-text-primary transition-all duration-200">
+          <span className="max-w-32 truncate font-medium">
+            {selectedModelInfo?.name}
+          </span>
           <ChevronDown className="h-4 w-4 ml-2 text-theme-text-muted" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent 
-        align="end" 
+      <DropdownMenuContent
+        align="end"
         className="w-80 bg-theme-bg-primary shadow-lg rounded-container p-2"
       >
         {isLoading ? (
@@ -107,11 +116,15 @@ export const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorPro
                 className="flex flex-col items-start p-3 cursor-pointer rounded-lg hover:bg-theme-bg-secondary transition-colors duration-150 border-none focus:bg-theme-bg-secondary"
               >
                 <div className="flex items-center justify-between w-full mb-1">
-                  <span className="font-medium text-theme-text-primary text-sm">{model.name}</span>
+                  <span className="font-medium text-theme-text-primary text-sm">
+                    {model.name}
+                  </span>
                   {validSelectedModel === model.id && (
                     <div className="flex items-center space-x-1">
                       <div className="h-2 w-2 bg-theme-accent rounded-full"></div>
-                      <span className="text-xs text-theme-accent font-medium">Active</span>
+                      <span className="text-xs text-theme-accent font-medium">
+                        Active
+                      </span>
                     </div>
                   )}
                 </div>
@@ -120,12 +133,6 @@ export const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorPro
                     {model.description}
                   </span>
                 )}
-                <div className="flex items-center space-x-1">
-                  <div className="h-1 w-1 bg-theme-accent rounded-full"></div>
-                  <span className="text-xs text-theme-accent font-medium">
-                    Powered by OpenRouter
-                  </span>
-                </div>
               </DropdownMenuItem>
             ))}
           </div>

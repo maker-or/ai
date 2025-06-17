@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../ui/button";
@@ -22,14 +22,22 @@ interface BranchSelectorProps {
 }
 
 export const BranchSelector = ({
-  chatId,
-  currentMessageId,
+  chatId: propChatId,
+  currentMessageId: propMessageId,
   branchDialogOpen = false,
   setBranchDialogOpen,
 }: BranchSelectorProps) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] =
     useState(branchDialogOpen);
   const [branchName, setBranchName] = useState("");
+  const [chatId, setChatId] = useState<Id<"chats"> | null>(propChatId ?? null);
+
+  useEffect(() => {
+    if (!chatId) {
+      const storedChatId = localStorage.getItem("chatId");
+      if (storedChatId) setChatId(storedChatId as Id<"chats">);
+    }
+  }, [chatId]);
 
   // Sync external dialog state
   useEffect(() => {
@@ -45,11 +53,19 @@ export const BranchSelector = ({
     chatId ? { chatId } : "skip",
   );
 
+  // Get the last message in the chat if no messageId is provided
+  const lastMessage = useQuery(
+    api.messages.getLastMessageInChat,
+    chatId && !propMessageId ? { chatId } : "skip",
+  );
+
   const createBranch = useMutation(api.branches.createBranch);
   const switchToBranch = useMutation(api.branches.switchToBranch);
 
+  const resolvedMessageId = propMessageId ?? lastMessage?._id;
+
   const handleCreateBranch = async () => {
-    if (!currentMessageId || !chatId) {
+    if (!resolvedMessageId || !chatId) {
       toast.error("No message selected for branching");
       return;
     }
@@ -57,7 +73,7 @@ export const BranchSelector = ({
     try {
       await createBranch({
         chatId,
-        fromMessageId: currentMessageId,
+        fromMessageId: resolvedMessageId,
         branchName: branchName || undefined,
       });
       setBranchName("");
@@ -105,13 +121,12 @@ export const BranchSelector = ({
               >
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center space-x-2">
-                    <div className="h-2 w-2 bg-theme-primary rounded-full"></div>
                     <span className="font-medium text-theme-text-primary">
                       Main Thread
                     </span>
                   </div>
                   {!activeBranch && (
-                    <span className="text-xs text-theme-accent font-medium">
+                    <span className="text-xs text-theme-bg-secondary font-medium">
                       Active
                     </span>
                   )}
@@ -147,7 +162,7 @@ export const BranchSelector = ({
                   setIsCreateDialogOpen(true);
                   setBranchDialogOpen?.(true);
                 }}
-                disabled={!currentMessageId}
+                disabled={!resolvedMessageId}
                 className="flex items-center p-3 cursor-pointer rounded-lg hover:bg-theme-accent hover:text-theme-text-inverse transition-all duration-150 border-none focus:bg-theme-accent focus:text-theme-text-inverse disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Plus className="h-4 w-4 mr-2" />

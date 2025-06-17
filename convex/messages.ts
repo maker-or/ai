@@ -4,7 +4,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { Id } from "./_generated/dataModel";
 
 export const getMessages = query({
-  args: { 
+  args: {
     chatId: v.id("chats"),
     branchId: v.optional(v.id("branches")),
   },
@@ -62,7 +62,11 @@ export const getMessages = query({
 export const addMessage = mutation({
   args: {
     chatId: v.id("chats"),
-    role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system")),
+    role: v.union(
+      v.literal("user"),
+      v.literal("assistant"),
+      v.literal("system"),
+    ),
     content: v.string(),
     parentId: v.optional(v.id("messages")),
     model: v.optional(v.string()),
@@ -202,5 +206,17 @@ export const getActiveStreamingSession = query({
       .first();
 
     return session;
+  },
+});
+
+export const getLastMessageInChat = query({
+  args: { chatId: v.id("chats") },
+  handler: async (ctx, args) => {
+    const messages = await ctx.db
+      .query("messages")
+      .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
+      .order("desc")
+      .collect();
+    return messages[0] ?? null;
   },
 });

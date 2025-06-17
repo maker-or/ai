@@ -79,7 +79,7 @@ export const nightTheme: Theme = {
     primary: {
       DEFAULT: "#E46BAB",
       hover: "#7483B9",
-      active: "#6d28d9",
+      active: "#C5BBD1",
     },
     chat: {
       userBubble: "#2C2632",
@@ -88,7 +88,7 @@ export const nightTheme: Theme = {
       assistantText: "#F2EBFA",
     },
     accent: {
-      DEFAULT: "E46BAB",
+      DEFAULT: "814E7C",
       hover: "#9333ea",
     },
     success: "#10b981",
