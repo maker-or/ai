@@ -37,7 +37,7 @@ const OnboardingThemeSelector = () => {
 
     return (
       <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-4 z-50 animate-in fade-in zoom-in duration-200">
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg shadow-xl p-3 min-w-[200px]">
+        <div className="bg-black backdrop-blur-md border border-white/20 rounded-lg shadow-xl p-3 min-w-[200px]">
           {/* Mock interface preview */}
           <div className="rounded-md p-2 mb-2 bg-theme-bg-primary">
             {/* Mock header */}
@@ -84,9 +84,6 @@ const OnboardingThemeSelector = () => {
         </div>
 
         {/* Tooltip arrow */}
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2">
-          <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white/20" />
-        </div>
       </div>
     );
   };
