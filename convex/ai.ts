@@ -41,6 +41,11 @@ export const streamChatCompletion = action({
     if (!openRouterKey) {
       throw new Error("OpenRouter API key is required. Please add your API key in settings.");
     }
+
+    // Validate API key format
+    if (!openRouterKey.startsWith("sk-")) {
+      throw new Error("Invalid OpenRouter API key format. Key should start with 'sk-'");
+    }
     
     const prompt = await ctx.runQuery(api.users.getPrompt, {});
 
@@ -134,6 +139,10 @@ export const streamChatCompletion = action({
       const client = new OpenAI({
         baseURL: "https://openrouter.ai/api/v1",
         apiKey: openRouterKey,
+        defaultHeaders: {
+          "HTTP-Referer": "https://localhost:3000", // Optional: for OpenRouter analytics
+          "X-Title": "AI Chat App", // Optional: for OpenRouter analytics
+        },
       });
 
       const allMessages = [...args.messages];
@@ -149,31 +158,41 @@ export const streamChatCompletion = action({
         max_tokens: 4096,
       });
 
+      console.log("OpenAI response created successfully");
+
       let fullContent = "";
       let tokenCount = 0;
 
-      for await (const chunk of response as any) {
-        const content = chunk.choices?.[0]?.delta?.content;
+      try {
+        console.log("Starting stream iteration");
+        for await (const chunk of response) {
+          console.log("Received chunk:", chunk);
+          const content = chunk.choices?.[0]?.delta?.content;
 
-        if (content) {
-          fullContent += content;
-          tokenCount++;
+          if (content) {
+            fullContent += content;
+            tokenCount++;
 
-          // Update streaming session
-          await ctx.runMutation(internal.messages.updateStreamingSession, {
-            sessionId,
-            chunk: content,
-          });
+            // Update streaming session
+            await ctx.runMutation(internal.messages.updateStreamingSession, {
+              sessionId,
+              chunk: content,
+            });
 
-          // Update resumable stream progress
-          const progress = Math.min((tokenCount / 100) * 100, 99); // Estimate progress
-          await ctx.runMutation(internal.resumable.updateStreamProgress, {
-            streamId,
-            progress,
-            checkpoint: fullContent,
-            tokens: tokenCount,
-          });
+            // Update resumable stream progress
+            const progress = Math.min((tokenCount / 100) * 100, 99); // Estimate progress
+            await ctx.runMutation(internal.resumable.updateStreamProgress, {
+              streamId,
+              progress,
+              checkpoint: fullContent,
+              tokens: tokenCount,
+            });
+          }
         }
+        console.log("Stream iteration completed successfully");
+      } catch (streamError) {
+        console.error("Streaming error:", streamError);
+        throw new Error(`Streaming failed: ${streamError instanceof Error ? streamError.message : "Unknown streaming error"}`);
       }
 
       // Mark streaming as complete
@@ -183,6 +202,14 @@ export const streamChatCompletion = action({
         isComplete: true,
       });
 
+      // Update final message content
+      if (fullContent) {
+        await ctx.runMutation(api.messages.updateMessage, {
+          messageId: assistantMessageId,
+          content: fullContent,
+        });
+      }
+
       // Complete resumable stream
       await ctx.runMutation(internal.resumable.completeStreamInternal, {
         streamId,
@@ -190,6 +217,8 @@ export const streamChatCompletion = action({
 
       return assistantMessageId;
     } catch (error) {
+      console.error("AI streaming error:", error);
+      
       // Update message with error
       await ctx.runMutation(api.messages.updateMessage, {
         messageId: assistantMessageId,
@@ -201,7 +230,12 @@ export const streamChatCompletion = action({
         streamId,
       });
 
-      throw error;
+      // Provide more detailed error information
+      if (error instanceof Error) {
+        throw new Error(`Chat completion failed: ${error.message}`);
+      } else {
+        throw new Error("Chat completion failed with unknown error");
+      }
     }
   },
 });
