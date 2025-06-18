@@ -1,3 +1,5 @@
+// ModelSelector.tsx
+
 import { useState, useEffect } from "react";
 import { useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -8,7 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, CheckCircle2, Loader2 } from "lucide-react";
+import { getModelLogo } from "./modelLogoMap";
 
 interface ModelSelectorProps {
   selectedModel: string;
@@ -18,24 +21,24 @@ interface ModelSelectorProps {
 interface Model {
   id: string;
   name: string;
-  description?: string;
 }
 
 const DEFAULT_MODELS: Model[] = [
   {
     id: "nvidia/llama-3.3-nemotron-super-49b-v1:free",
     name: "Llama 3.3 Nemotron",
-    description: "Advanced open-source model by NVIDIA",
   },
   {
     id: "deepseek/deepseek-chat-v3-0324:free",
     name: "DeepSeek Chat",
-    description: "Fast reasoning model by DeepSeek",
   },
   {
-    id: "microsoft/phi-4-reasoning-plus:free",
-    name: "Microsoft Phi-4 Reasoning Plus",
-    description: "Advanced open-source model by Microsoft",
+    id: "openai/gpt-4.1",
+    name: "GPT-4.1",
+  },
+  {
+    id: "anthropic/claude-sonnet-4",
+    name: "Claude Sonnet 4",
   },
 ];
 
@@ -57,18 +60,15 @@ export const ModelSelector = ({
           const formattedModels = availableModels.map((model: any) => ({
             id: model.id,
             name: model.name || model.id,
-            description: model.description,
           }));
           setModels(formattedModels);
         }
       } catch (error) {
-        console.error("Failed to fetch models:", error);
         // Keep default models on error
       } finally {
         setIsLoading(false);
       }
     };
-
     void fetchModels();
   }, [getAvailableModels]);
 
@@ -86,55 +86,101 @@ export const ModelSelector = ({
     }
   }, [validSelectedModel, selectedModel, onModelChange]);
 
+  // Get logo component for selected model
+  const SelectedModelLogo = getModelLogo(validSelectedModel);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="w-auto  text-theme-text-primary transition-all duration-200">
-          <span className="max-w-32 truncate font-medium">
-            {selectedModelInfo?.name}
-          </span>
-          <ChevronDown className="h-4 w-4 ml-2 text-theme-text-muted" />
+        <Button
+          className="group relative min-w-[200px] h-11 px-5 py-2 bg-theme-bg-secondary border border-theme-border-primary hover:border-theme-border-focus text-theme-text-primary transition-all duration-200 rounded-xl shadow-sm hover:shadow-lg focus:ring-2 focus:ring-theme-accent/40"
+          aria-label="Select AI Model"
+        >
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-3 min-w-0">
+              {SelectedModelLogo && (
+                <SelectedModelLogo 
+                  className="text-theme-accent flex-shrink-0" 
+                  size={20} 
+                />
+              )}
+              <span className="font-semibold text-base truncate">
+                {selectedModelInfo?.name}
+              </span>
+            </div>
+            <ChevronDown className="h-5 w-5 text-theme-text-muted group-hover:text-theme-text-primary transition-colors duration-150 flex-shrink-0" />
+          </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-80 bg-theme-bg-primary shadow-lg rounded-container p-2"
+        className="w-[320px] max-w-[95vw] bg-theme-bg-secondary border-4 border-theme-border-primary shadow-2xl rounded-2xl p-2"
       >
+        <div className="px-4 py-3 border-b border-theme-border-primary mb-2">
+          <h3 className="text-base font-bold text-theme-text-primary">AI Models</h3>
+          <p className="text-xs text-theme-text-muted mt-1">
+            Choose your preferred AI model
+          </p>
+        </div>
         {isLoading ? (
-          <div className="p-6 text-center">
-            <div className="inline-flex items-center space-x-2 text-theme-text-muted">
-              <div className="w-4 h-4 border-2 border-theme-accent border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-sm">Loading models...</span>
-            </div>
+          <div className="space-y-2 px-4 py-6">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 animate-pulse">
+                <div className="w-3 h-3 rounded-full bg-theme-border-primary" />
+                <div className="flex-1">
+                  <div className="h-4 bg-theme-border-primary/40 rounded w-2/3 mb-1" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
-          <div className="space-y-1">
-            {models.map((model) => (
-              <DropdownMenuItem
-                key={model.id}
-                onClick={() => onModelChange(model.id)}
-                className="flex flex-col items-start p-3 cursor-pointer rounded-lg hover:bg-theme-bg-secondary transition-colors duration-150 border-none focus:bg-theme-bg-secondary"
-              >
-                <div className="flex items-center justify-between w-full mb-1">
-                  <span className="font-medium text-theme-text-primary text-sm">
-                    {model.name}
-                  </span>
-                  {validSelectedModel === model.id && (
-                    <div className="flex items-center space-x-1">
-                      <div className="h-2 w-2 bg-theme-accent rounded-full"></div>
-                      <span className="text-xs text-theme-accent font-medium">
-                        Active
-                      </span>
-                    </div>
+          <div className="space-y-1 max-h-80 overflow-y-auto">
+            {models.map((model) => {
+              const isActive = validSelectedModel === model.id;
+              const ModelLogo = getModelLogo(model.id);
+              
+              return (
+                <DropdownMenuItem
+                  key={model.id}
+                  onClick={() => onModelChange(model.id)}
+                  className={`group relative flex items-center gap-3 p-4 cursor-pointer rounded-xl transition-all duration-200 border-2 ${
+                    isActive
+                      ? "bg-theme-accent/10 border-theme-accent/40 shadow-md"
+                      : "border-transparent hover:bg-theme-bg-secondary hover:border-theme-border-focus"
+                  } focus:outline-none focus:ring-2 focus:ring-theme-accent/30`}
+                  tabIndex={0}
+                  aria-selected={isActive}
+                >
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    {ModelLogo && (
+                      <ModelLogo 
+                        className={`flex-shrink-0 ${
+                          isActive ? "text-theme-accent" : "text-theme-text-muted group-hover:text-theme-accent"
+                        } transition-colors duration-200`}
+                        size={20} 
+                      />
+                    )}
+                    <span
+                      className={`font-semibold text-base truncate ${
+                        isActive
+                           ? "text-theme-accent"
+                          : "text-theme-text-primary"
+                      }`}
+                    >
+                      {model.name}
+                    </span>
+                  </div>
+                  {isActive && (
+                    <CheckCircle2 className="h-5 w-5 text-theme-accent flex-shrink-0" />
                   )}
-                </div>
-                {model.description && (
-                  <span className="text-xs text-theme-text-muted leading-relaxed mb-1">
-                    {model.description}
-                  </span>
-                )}
-              </DropdownMenuItem>
-            ))}
+                </DropdownMenuItem>
+              );
+            })}
+          </div>
+        )}
+        {isLoading && (
+          <div className="flex justify-center py-4">
+            <Loader2 className="h-5 w-5 text-theme-accent animate-spin" />
           </div>
         )}
       </DropdownMenuContent>

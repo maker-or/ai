@@ -74,7 +74,7 @@ export const nightTheme: Theme = {
     border: {
       primary: "#2E2834",
       secondary: "#2d1b69",
-      focus: "#a855f7",
+      focus: "#3E1828",
     },
     primary: {
       DEFAULT: "#E46BAB",

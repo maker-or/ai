@@ -15,8 +15,13 @@ export function SignInForm() {
   const { signIn } = useAuthActions();
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       <div className="flex flex-col gap-2">
+        <div className="text-center">
+          <h1 className="text-5xl  text-theme-chat-assistant-text mb-4">
+            Ready to <span className="font-serif italic">Nerd</span> out?
+          </h1>
+        </div>
         <button
           className="auth-button bg-theme-chat-assistant-text rounded-lg text-theme-bg-primary flex items-center justify-center gap-2 py-4"
           onClick={() => void signIn("github")}

@@ -77,7 +77,7 @@ export const addMessage = mutation({
     if (!userId) throw new Error("Not authenticated");
 
     const chat = await ctx.db.get(args.chatId);
-    if (!chat || chat.userId !== userId) {
+    if (!chat || (chat.userId !== userId && !chat.isShared)) {
       throw new Error("Unauthorized");
     }
 
