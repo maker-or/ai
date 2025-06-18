@@ -18,8 +18,8 @@ export const ThemeCategorySection: React.FC<ThemeCategorySectionProps> = ({
   if (themes.length === 0) return null;
 
   return (
-    <div className="mb-8 item-center justify-center">
-      <div className="mb-6">
+    <div className="w-full flex flex-col items-center">
+      <div className="text-center mb-6">
         <h3 className="text-xl font-semibold text-foreground mb-2">
           {category.name}
         </h3>
@@ -28,14 +28,15 @@ export const ThemeCategorySection: React.FC<ThemeCategorySectionProps> = ({
         </p>
       </div>
       
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 justify-center place-items-center">
+      <div className="flex justify-center items-center gap-8 w-full">
         {themes.map((theme, index) => (
-          <ThemeCircle
-            key={theme.id}
-            theme={theme}
-            size="lg"
-            index={index} // Pass index for staggered animations
-          />
+          <div key={theme.id} className="flex justify-center">
+            <ThemeCircle
+              theme={theme}
+              size="lg"
+              index={index}
+            />
+          </div>
         ))}
       </div>
     </div>

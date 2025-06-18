@@ -127,7 +127,7 @@ export const  Aquilux: Theme = {
       muted: "30464A",
       inverse: "#1a0b2e",
       heading: "#689096",
-      block: "445963",
+      block: "#445963",
     },
     border: {
       primary: "#45575E",
