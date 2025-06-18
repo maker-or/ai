@@ -47,16 +47,27 @@ function CodeBlock({ children, className, ...props }: CodeComponentProps) {
     const codeString = getChildrenAsString(children);
 
     return (
-      <div className="rounded-none">
+      <div className="relative rounded-md overflow-hidden shadow-md">
         <Codebar lang={lang} codeString={codeString} />
-        <ShikiHighlighter
-          language={lang}
-          theme={"material-theme-darker"}
-          className="text-sm font-mono rounded-b-md"
-          showLanguage={false}
+        <div 
+          className="relative code-block-content"
+          style={{
+            background: 'var(--theme-code-background)',
+          }}
         >
-          {codeString}
-        </ShikiHighlighter>
+          <ShikiHighlighter
+            language={lang}
+            theme={"material-theme-darker"}
+            className="text-sm"
+            showLanguage={false}
+            style={{
+              background: 'var(--theme-code-background) !important',
+              padding: '0.75rem 1rem',
+            }}
+          >
+            {codeString}
+          </ShikiHighlighter>
+        </div>
       </div>
     );
   }
@@ -95,11 +106,11 @@ function Codebar({ lang, codeString }: { lang: string; codeString: string }) {
   };
 
   return (
-    <div className="flex justify-between bg-theme-bg-secondary items-center px-4 py-2  text-foreground rounded-t-md">
+    <div className="flex justify-between bg-theme-bg-secondary items-center px-4 py-2 text-foreground border-b border-theme-border-primary">
       <span className="text-sm font-mono">{lang}</span>
       <button
         onClick={handleCopyClick}
-        className="text-sm cursor-pointer"
+        className="text-sm cursor-pointer hover:bg-theme-bg-primary rounded p-1 transition-colors"
         aria-label="Copy code"
       >
         {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}

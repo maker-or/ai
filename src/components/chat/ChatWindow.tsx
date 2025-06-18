@@ -268,52 +268,58 @@ export const ChatWindow = ({
             <div
               key={msg._id}
               id={`message-${msg._id}`}
-              className={`flex items-start space-x-3 ${
-                msg.role === "user" ? "flex-row-reverse space-x-reverse" : ""
-              }`}
+              className="group"
             >
               <div
-                className={`group max-w-3xl rounded-lg p-4 ${
-                  msg.role === "user"
-                    ? "bg-theme-chat-user-bubble text-theme-chat-user-text"
-                    : " text-theme-chat-assistant-text"
+                className={`flex items-start space-x-3 ${
+                  msg.role === "user" ? "flex-row-reverse space-x-reverse" : ""
                 }`}
               >
-                <div className="message-content">
-                  {msg.role === "user" ? (
-                    <div className="whitespace-pre-wrap">
-                      {msg.content as string}
-                    </div>
-                  ) : (
-                    <MarkdownRenderer
-                      chunks={
-                        Array.isArray(msg.content) ? msg.content : [msg.content]
-                      }
-                      id={msg._id}
-                    />
-                  )}
+                <div
+                  className={`max-w-3xl rounded-lg p-4 ${
+                    msg.role === "user"
+                      ? "bg-theme-chat-user-bubble text-theme-chat-user-text"
+                      : " text-theme-chat-assistant-text"
+                  }`}
+                >
+                  <div className="message-content">
+                    {msg.role === "user" ? (
+                      <div className="whitespace-pre-wrap">
+                        {msg.content as string}
+                      </div>
+                    ) : (
+                      <MarkdownRenderer
+                        chunks={
+                          Array.isArray(msg.content) ? msg.content : [msg.content]
+                        }
+                        id={msg._id}
+                      />
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center justify-between mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="flex items-center space-x-1">
+              </div>
+              <div className={`flex items-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity ${
+                msg.role === "user" ? "justify-end" : "justify-start"
+              }`}>
+                <div className="flex items-center space-x-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => void copyToClipboard(msg.content)}
+                    className="h-6 w-6 bg-theme-bg-secondary/30 hover:bg-theme-bg-secondary text-theme-text-secondary hover:text-theme-text-primary"
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                  {msg.role === "assistant" && (
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => void copyToClipboard(msg.content)}
-                      className="h-6 w-6"
+                      onClick={() => handleCreateBranch(msg._id)}
+                      className="h-6 w-6 bg-theme-bg-secondary/30 hover:bg-theme-bg-secondary text-theme-text-secondary hover:text-theme-text-primary"
                     >
-                      <Copy className="h-3 w-3" />
+                      <GitBranch className="h-3 w-3" />
                     </Button>
-                    {msg.role === "assistant" && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleCreateBranch(msg._id)}
-                        className="h-6 w-6"
-                      >
-                        <GitBranch className="h-3 w-3" />
-                      </Button>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
             </div>

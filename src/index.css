@@ -178,14 +178,37 @@ body.theme-transitioning * {
 
 /* Code blocks */
 .markdown-content pre {
-  border: 1px solid #2a2139;
   color: #f8f8f2;
   border-radius: 0.5em;
   font-size: 0.98em;
   margin-top: 0.5em;
   margin-bottom: 0.5em;
+  padding: 0;
+  overflow: hidden;
+  background: var(--theme-code-background) !important;
+  border: none;
+}
+
+.markdown-content pre code {
+  display: block;
   padding: 0.75em 1em;
   overflow-x: auto;
+  margin: 0;
+  background: transparent !important;
+}
+
+/* Override ShikiHighlighter background to use theme colors */
+.code-block-content pre,
+.code-block-content pre[class*="shiki"] {
+  background: var(--theme-code-background) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+.code-block-content code {
+  background: var(--theme-code-background) !important;
+  border: none !important;
 }
 
 .markdown-content code {

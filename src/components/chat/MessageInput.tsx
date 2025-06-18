@@ -81,7 +81,7 @@ export const MessageInput = memo(
     };
 
     return (
-      <div className="p-4">
+      <div className="p-4 ">
         <div className="max-w-3xl p-3 mx-auto">
           <div className="rounded-[24px] max-w-2xl border-4 border-theme-border-primary bg-theme-bg-secondary">
             {/* Part 1: Input Field */}
@@ -91,7 +91,7 @@ export const MessageInput = memo(
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Type your message..."
-                className="bg-theme-bg-sidebar border-none rounded-t-[20px] focus:ring-none focus:outline-none min-h-[100px] max-h-40 resize-none p-5 w-full transition-all"
+                className="bg-theme-bg-sidebar border-none text-theme-chat-assistant-text rounded-t-[20px] focus:ring-none focus:outline-none min-h-[100px] max-h-40 resize-none p-5 w-full transition-all"
                 disabled={disabled || isLoading}
               />
             </div>
@@ -126,7 +126,7 @@ export const MessageInput = memo(
               </div>
 
               {/* Right side - Send Button */}
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 text-theme-chat-assistant-text">
                 <SendButton
                   onClick={handleSend}
                   disabled={disabled || isLoading || !message.trim()}

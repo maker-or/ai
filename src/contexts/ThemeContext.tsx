@@ -62,6 +62,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       '--theme-chat-assistant-bubble': colors.chat.assistantBubble,
       '--theme-chat-user-text': colors.chat.userText,
       '--theme-chat-assistant-text': colors.chat.assistantText,
+      '--theme-code-background': colors.code.background,
       '--theme-accent': colors.accent.DEFAULT,
       '--theme-accent-hover': colors.accent.hover,
       '--theme-success': colors.success,
