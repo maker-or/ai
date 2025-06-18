@@ -20,6 +20,7 @@ interface BranchSelectorProps {
   branchDialogOpen?: boolean;
   setBranchDialogOpen?: (open: boolean) => void;
 }
+console.log("hello world");
 
 export const BranchSelector = ({
   chatId: propChatId,
