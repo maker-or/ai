@@ -69,11 +69,11 @@ export const ThemesPage: React.FC<ThemesPageProps> = ({ onBack }) => {
         </div>
 
         {/* Theme Categories */}
-        <div className="space-y-12">
+        <div className="space-y-12 flex flex-col  items-center justify-center"> 
           {themeCategories.map((category, categoryIndex) => (
             <div
               key={category.id}
-              className="animate-in slide-in-from-bottom duration-500"
+              className="animate-in flex items-center justify-center slide-in-from-bottom duration-500 w-full"
               style={{ animationDelay: `${200 + categoryIndex * 100}ms` }}
             >
               <ThemeCategorySection
