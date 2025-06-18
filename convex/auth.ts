@@ -3,21 +3,18 @@ import GitHub from "@auth/core/providers/github";
 import { query } from "./_generated/server";
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
-  providers: [GitHub],
+  providers: [
+    GitHub({
+      clientId: process.env.AUTH_GITHUB_ID!,
+      clientSecret: process.env.AUTH_GITHUB_SECRET!,
+    }),
+  ],
 });
 
 export const loggedInUser = query({
   args: {},
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      return null;
-    }
-    const user = await ctx.db.get(userId);
-    if (!user) {
-      return null;
-    }
-    console.log("hello world");
-    return user;
+    return userId ? await ctx.db.get(userId) : null;
   },
 });

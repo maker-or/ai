@@ -11,7 +11,8 @@ measurePerformance.mark("app-start");
 
 // Initialize Convex client with error handling
 const convex = new ConvexReactClient(
-  import.meta.env.VITE_CONVEX_URL || import.meta.env.NEXT_PUBLIC_CONVEX_URL!
+  import.meta.env.VITE_CONVEX_URL ||
+    (import.meta.env.NEXT_PUBLIC_CONVEX_URL as string),
 );
 
 // Remove initial loader once React mounts
