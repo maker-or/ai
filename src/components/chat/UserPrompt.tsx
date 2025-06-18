@@ -32,7 +32,7 @@ export default function UserPrompt() {
         className="bg-theme-bg-secondary border-none rounded-full w-10 h-10 flex items-center justify-center cursor-pointer shadow hover:shadow-md transition-shadow"
         aria-label="Edit system prompt"
         onClick={() => setOpen(true)}
-        title="Edit system prompt"
+        title="Edit system prompts"
       >
         {/* Pencil icon (SVG) */}
         <svg width={20} height={20} fill="none" viewBox="0 0 20 20">
