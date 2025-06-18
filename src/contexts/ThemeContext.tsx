@@ -52,6 +52,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       '--theme-text-secondary': colors.text.secondary,
       '--theme-text-muted': colors.text.muted,
       '--theme-text-inverse': colors.text.inverse,
+      '--theme-text-heading':colors.text.heading,
+      '--theme-text-block:':colors.text.block,
       '--theme-border-primary': colors.border.primary,
       '--theme-border-secondary': colors.border.secondary,
       '--theme-border-focus': colors.border.focus,
