@@ -36,6 +36,9 @@ export const ocenpurpleTheme: Theme = {
       userText: "#AEB5C7",
       assistantText: "#AEB5C7",
     },
+    code: {
+      background: "#2D3349", // Darker than secondary for contrast
+    },
     accent: {
       DEFAULT: "#a855f7",
       hover: "#9333ea",
@@ -86,6 +89,9 @@ export const nightTheme: Theme = {
       assistantBubble: "#221D27",
       userText: "#F2EBFA",
       assistantText: "#F2EBFA",
+    },
+    code: {
+      background: "#161014", // Using sidebar color for deeper contrast
     },
     accent: {
       DEFAULT: "814E7C",

@@ -94,20 +94,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       {messages.length > 0 && (
         <Timeline messages={messages} onQuestionClick={handleQuestionClick} />
       )}
-      {/* {sidebarOpen && (
-        <ChatSidebar
-          chats={chats}
-          selectedChatId={selectedChatId}
-          onSelectChat={handleSelectChat}
-          onCreateChat={handleCreateChat}
-          onToggleSidebar={toggleSidebar}
-          sidebarOpen={sidebarOpen}
-          getChatData={getChatData}
-          isPrefetched={isPrefetched}
-          isPrefetchLoading={isPrefetchLoading}
-          onNavigateToThemes={onNavigateToThemes}
-        />
-      )} */}
+  
       <ChatWindow
         chatId={selectedChatId}
         setChatId={setSelectedChatId}

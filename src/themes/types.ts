@@ -39,6 +39,11 @@ export interface ThemeColors {
     assistantText: string; // Assistant message text
   };
 
+  // Code block colors
+  code: {
+    background: string; // Code block background
+  };
+
   // Status colors
   accent: {
     DEFAULT: string;
