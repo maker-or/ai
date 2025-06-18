@@ -123,9 +123,14 @@ export const streamChatCompletion = action({
         apiKey: openRouterKey,
       });
 
+      const allMessages = [...args.messages];
+      if (prompt) {
+        allMessages.unshift({ role: "system", content: prompt });
+      }
+
       const response = await client.chat.completions.create({
         model: args.model,
-        messages: [{ role: "system", content: prompt }, ...args.messages],
+        messages: allMessages,
         stream: true,
         temperature: 0.7,
         max_tokens: 4096,
@@ -203,10 +208,16 @@ export const getAvailableModels = action({
         name: "DeepSeek Chat",
         description: "Fast reasoning model by DeepSeek",
       },
+
       {
-        id: "microsoft/phi-4-reasoning-plus:free",
-        name: "Microsoft Phi-4 Reasoning Plus",
-        description: "Advanced open-source model by Microsoft",
+        id: "openai/gpt-4.1",
+        name: "GPT-4.1",
+        description: "Advanced open-source model by openai",
+      },
+      {
+        id: "anthropic/claude-sonnet-4",
+        name: "claude-sonnet-4",
+        description: "Advanced open-source model by openai",
       },
     ];
   },

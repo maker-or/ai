@@ -267,6 +267,7 @@ export const ChatWindow = ({
           {messages.map((msg) => (
             <div
               key={msg._id}
+              id={`message-${msg._id}`}
               className={`flex items-start space-x-3 ${
                 msg.role === "user" ? "flex-row-reverse space-x-reverse" : ""
               }`}

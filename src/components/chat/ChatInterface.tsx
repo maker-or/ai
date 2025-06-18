@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { ChatSidebar } from "./ChatSidebar";
 import { ChatWindow } from "./ChatWindow";
 import { CommandPalette } from "../CommandPalette";
 import { Id } from "../../../convex/_generated/dataModel";
 import { useChatPrefetch } from "../../hooks/useChatPrefetch";
 import { useAuthActions } from "@convex-dev/auth/react";
+import Timeline from "./Timeline";
 
 interface ChatInterfaceProps {
   onNavigateToThemes?: () => void;
@@ -23,6 +23,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const chats = useQuery(api.chats.listChats) || [];
   const createChat = useMutation(api.chats.createChat);
   const { signOut } = useAuthActions();
+
+  // Get messages for the selected chat
+  const messages = useQuery(
+    api.messages.getMessages,
+    selectedChatId ? { chatId: selectedChatId } : "skip"
+  ) || [];
 
   // Prefetch data for top 10 chats when sidebar is open
   const chatIds = chats.map((chat) => chat._id);
@@ -56,6 +62,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setSidebarOpen(!sidebarOpen);
   };
 
+  const handleQuestionClick = (messageId: Id<"messages">) => {
+    const messageElement = document.getElementById(`message-${messageId}`);
+    if (messageElement) {
+      messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
   const LOCAL_STORAGE_KEY = "lastChatId";
 
   useEffect(() => {
@@ -78,6 +91,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   return (
     <div className="flex h-screen bg-background">
+      {messages.length > 0 && (
+        <Timeline messages={messages} onQuestionClick={handleQuestionClick} />
+      )}
       {/* {sidebarOpen && (
         <ChatSidebar
           chats={chats}
