@@ -1,9 +1,0 @@
-{
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "framework": "vite",
-  "rootDirectory": "app",
-  "env": {
-    "NEXT_PUBLIC_CONVEX_URL": "@convex_url"
-  }
-}
