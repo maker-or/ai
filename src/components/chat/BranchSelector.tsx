@@ -100,7 +100,7 @@ export const BranchSelector = ({
   };
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flexitems-center ">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
