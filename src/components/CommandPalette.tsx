@@ -454,7 +454,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       onClick={closePalette} // Close when clicking backdrop
     >
       <div
-        className="bg-theme-bg-primary border border-theme-border-primary rounded-2xl shadow-2xl w-full max-w-2xl max-h-[70vh] flex flex-col"
+        className="bg-theme-bg-primary border border-theme-border-primary text-theme-chat-assistant-text rounded-2xl shadow-2xl w-full max-w-2xl max-h-[70vh] flex flex-col"
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
         style={{
           backdropFilter: "blur(12px)",

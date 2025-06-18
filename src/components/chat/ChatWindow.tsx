@@ -211,15 +211,8 @@ export const ChatWindow = ({
     return (
       <div className="flex-1 flex flex-col">
         {/* Header with sidebar toggle */}
-        <header className="bg-theme-bg-primary p-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            {!sidebarOpen && (
-              <Button variant="ghost" size="icon" onClick={onToggleSidebar}>
-                <Menu className="h-5 w-5" />
-              </Button>
-            )}
-          </div>
-          <div className="flex items-center space-x-2">
+        <header className="bg-theme-bg-primary p-1 flex items-center justify-between">
+          <div className="flex items-center ">
             <BranchSelector
               chatId={null}
               currentMessageId={selectedMessageId}
@@ -251,8 +244,8 @@ export const ChatWindow = ({
 
   return (
     <div className="flex-1 flex flex-col bg-theme-bg-chat">
-      <header className="bg-theme-bg-primary p-4 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
+      <header className="bg-theme-bg-primaryflex  p-1 items-center justify-between">
+        <div className="flex items-center ">
           <BranchSelector
             chatId={chatId}
             currentMessageId={selectedMessageId}

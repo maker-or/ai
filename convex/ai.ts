@@ -27,6 +27,21 @@ export const streamChatCompletion = action({
   handler: async (ctx, args): Promise<any> => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
+    
+    // Get user's stored API key
+    const decryptedKey = await ctx.runQuery(api.saveApiKey.getkey, {});
+
+    let openRouterKey = decryptedKey || "";
+    
+    // Fallback to environment variable if no user key is stored
+    if (!openRouterKey) {
+      openRouterKey = process.env.OPENROUTER_API_KEY || "";
+    }
+    
+    if (!openRouterKey) {
+      throw new Error("OpenRouter API key is required. Please add your API key in settings.");
+    }
+    
     const prompt = await ctx.runQuery(api.users.getPrompt, {});
 
     // Optionally augment with web search
@@ -112,12 +127,10 @@ export const streamChatCompletion = action({
       },
     );
 
+
+
     try {
-      // OpenRouter client
-      const openRouterKey = process.env.OPENROUTER_API_KEY || "";
-      if (!openRouterKey) {
-        throw new Error("OPENROUTER_API_KEY environment variable is required");
-      }
+      // OpenRouter client - use the retrieved API key
       const client = new OpenAI({
         baseURL: "https://openrouter.ai/api/v1",
         apiKey: openRouterKey,
