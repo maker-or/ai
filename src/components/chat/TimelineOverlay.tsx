@@ -36,7 +36,7 @@ const TimelineOverlay: React.FC<TimelineOverlayProps> = ({
               className={`text-left text-sm p-2 rounded w-full transition-colors ${
                 index === hoveredIndex
                   ? "bg-theme-border-focus  text-theme-chat-assistant-text"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  : " text-theme-chat-assistant-text hover:bg-theme-border-focus opacity-60"
               }`}
               title={msg.content}
             >
