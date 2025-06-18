@@ -1,7 +1,7 @@
 // src/components/onboarding/OnboardingFlow.tsx
 import React, { useState } from "react";
 import OnboardingScreen1 from "./OnboardingScreen1";
-import OnboardingScreen2 from "./OnboardingScreen2";
+// import OnboardingScreen2 from "./OnboardingScreen2";
 import OnboardingScreen3 from "./OnboardingScreen3";
 import OnboardingScreen4 from "./OnboardingScreen4";
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
@@ -15,7 +15,7 @@ export const OnboardingFlow: React.FC<Props> = ({ onFinish }) => {
 
   const screens = [
     <OnboardingScreen1 key="1" />,
-    <OnboardingScreen2 key="2" />,
+    // <OnboardingScreen2 key="2" />,
     <OnboardingScreen3 key="3" />,
     <OnboardingScreen4 key="4" />,
   ];

@@ -32,10 +32,6 @@ export const useThemeColors = () => {
  * Hook to check if current theme is dark
  * Useful for conditional rendering based on theme type
  */
-export const useIsDarkTheme = () => {
-  const { currentTheme } = useTheme();
-  return currentTheme.category === 'dark';
-};
 
 /**
  * Hook to get theme preview colors
