@@ -23,6 +23,7 @@ import type * as resumable from "../resumable.js";
 import type * as router from "../router.js";
 import type * as saveApiKey from "../saveApiKey.js";
 import type * as sync from "../sync.js";
+import type * as testWebSearch from "../testWebSearch.js";
 import type * as users from "../users.js";
 
 /**
@@ -44,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   router: typeof router;
   saveApiKey: typeof saveApiKey;
   sync: typeof sync;
+  testWebSearch: typeof testWebSearch;
   users: typeof users;
 }>;
 export declare const api: FilterApi<
