@@ -12,7 +12,7 @@ import { BranchSelector } from "./BranchSelector";
 import { MessageInput } from "./MessageInput";
 import MarkdownRenderer from "../ui/MarkdownRenderer";
 import { useChatData } from "../../hooks/useChatPrefetch";
-import { GitBranch, Copy } from "lucide-react";
+import { GitBranch, Copy, Globe } from "lucide-react";
 
 interface PrefetchedChatData {
   chat: any;
@@ -104,6 +104,7 @@ export const ChatWindow = ({
 
   const handleSendMessage = useCallback(
     async (messageText: string, web = false) => {
+      console.log(`📝 ChatWindow handleSendMessage called with web=${web}`);
       if (!messageText.trim() || isLoading) return;
 
       const currentMessage = messageText.trim();
@@ -135,6 +136,7 @@ export const ChatWindow = ({
           content: currentMessage,
           parentId: selectedMessageId || undefined,
           branchId: activeBranch?._id,
+          webSearchUsed: web, // Track if web search was requested
         });
 
         // Update chat title if it's the first message
@@ -160,6 +162,7 @@ export const ChatWindow = ({
         ];
 
         // Stream AI response
+        console.log(`🤖 Calling streamChatCompletion with webSearch=${web}`);
         await streamChatCompletion({
           chatId: currentChatId,
           messages: chatMessages,
@@ -226,8 +229,8 @@ export const ChatWindow = ({
           <div className="text-center items-center justify-center max-w-full w-full px-4">
             <div className="max-w-2xl mx-auto">
               <MessageInput
-                onSendMessage={(msg) => {
-                  void handleSendMessage(msg);
+                onSendMessage={(msg, web) => {
+                  void handleSendMessage(msg, web);
                 }}
                 disabled={false}
                 isLoading={isLoading}
@@ -270,12 +273,13 @@ export const ChatWindow = ({
                 }`}
               >
                 <div
-                  className={`max-w-3xl rounded-lg p-4 ${
+                  className={`max-w-3xl rounded-lg p-4 relative ${
                     msg.role === "user"
                       ? "bg-theme-chat-user-bubble text-theme-chat-user-text"
                       : " text-theme-chat-assistant-text"
                   }`}
                 >
+
                   <div className="message-content">
                     {msg.role === "user" ? (
                       <div className="whitespace-pre-wrap">
@@ -321,8 +325,8 @@ export const ChatWindow = ({
         </div>
       </ScrollArea>
       <MessageInput
-        onSendMessage={(msg) => {
-          void handleSendMessage(msg);
+        onSendMessage={(msg, web) => {
+          void handleSendMessage(msg, web);
         }}
         disabled={false}
         isLoading={isLoading}

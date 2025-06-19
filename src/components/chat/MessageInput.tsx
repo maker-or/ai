@@ -17,6 +17,7 @@ interface MessageInputProps {
   selectedModel?: string;
   onModelChange?: (model: string) => void;
   showInline?: boolean;
+  isWebSearching?: boolean; // Add this prop to show when web search is active
 }
 
 export const MessageInput = memo(
@@ -28,6 +29,7 @@ export const MessageInput = memo(
     selectedModel = "nvidia/llama-3.3-nemotron-super-49b-v1:free",
     onModelChange,
     showInline = false,
+    isWebSearching = false,
   }: MessageInputProps) => {
     const [message, setMessage] = useState("");
     const [webActive, setWebActive] = useState(false);
@@ -60,9 +62,10 @@ export const MessageInput = memo(
     const handleSend = useCallback(() => {
       const trimmedMessage = messageRef.current.trim();
       if (trimmedMessage && !disabled && !isLoading) {
+        console.log(`🚀 Sending message with web search: ${webActive}`);
         onSendMessage(trimmedMessage, webActive);
         setMessage(""); // Clear the input after sending
-        setWebActive(false); // Optionally reset web mode after send
+        // Don't reset webActive - keep it for the user to see and decide
       }
     }, [onSendMessage, disabled, isLoading, webActive]);
 
@@ -110,19 +113,21 @@ export const MessageInput = memo(
                 </div>
 
                 {/* Globe Icon */}
-                <Globe
-                  className={`cursor-pointer transition-colors ${
-                    webActive
-                      ? "text-theme-chat-assistant-bubble" // Active color
-                      : "text-theme-bg-primary" // Inactive color
-                  }`}
+                <div 
+                  className="relative cursor-pointer" 
                   onClick={handleToggleWeb}
-                  style={{
-                    filter: webActive
-                      ? "drop-shadow(0 0 4px #3b82f6)" // Optional glow effect
-                      : undefined,
-                  }}
-                />
+                  title={webActive ? "Web search enabled - Click to disable" : "Enable web search for current context"}
+                >
+                  <Globe
+                    className={`transition-all duration-200 ${
+                      webActive
+                        ? "text-theme-accent scale-110" // Active color with slight scale
+                        : "text-gray-400 hover:text-gray-600" // Inactive color with hover
+                    } ${isLoading && webActive ? "animate-spin" : ""}`} // Spinning when searching
+ 
+                  />
+
+                </div>
               </div>
 
               {/* Right side - Send Button */}

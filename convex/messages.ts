@@ -71,6 +71,7 @@ export const addMessage = mutation({
     parentId: v.optional(v.id("messages")),
     model: v.optional(v.string()),
     branchId: v.optional(v.id("branches")),
+    webSearchUsed: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -90,6 +91,7 @@ export const addMessage = mutation({
       isActive: true,
       branchId: args.branchId,
       createdAt: Date.now(),
+      webSearchUsed: args.webSearchUsed,
     });
 
     return messageId;

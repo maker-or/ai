@@ -44,6 +44,7 @@ const applicationTables = {
     isActive: v.boolean(),
     branchId: v.optional(v.id("branches")),
     createdAt: v.number(),
+    webSearchUsed: v.optional(v.boolean()), // Track if web search was used for this message
   })
     .index("by_chat", ["chatId"])
     .index("by_chat_and_parent", ["chatId", "parentId"])
