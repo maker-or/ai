@@ -1,6 +1,7 @@
-import React from 'react';
-import { Theme, ThemeCategory } from '../../themes/types';
-import { ThemeCircle } from './ThemeCircle';
+// ThemeCategorySection.tsx
+import React from "react";
+import { Theme, ThemeCategory } from "../../themes/types";
+import { ThemeCircle } from "./ThemeCircle";
 
 interface ThemeCategorySectionProps {
   category: {
@@ -13,7 +14,7 @@ interface ThemeCategorySectionProps {
 
 export const ThemeCategorySection: React.FC<ThemeCategorySectionProps> = ({
   category,
-  themes
+  themes,
 }) => {
   if (themes.length === 0) return null;
 
@@ -23,20 +24,11 @@ export const ThemeCategorySection: React.FC<ThemeCategorySectionProps> = ({
         <h3 className="text-xl font-semibold text-foreground mb-2">
           {category.name}
         </h3>
-        <p className="text-muted text-sm">
-          {category.description}
-        </p>
       </div>
-      
-      <div className="flex justify-center items-center gap-8 w-full">
+
+      <div className="flex flex-row flex-wrap justify-center items-end gap-8 w-full">
         {themes.map((theme, index) => (
-          <div key={theme.id} className="flex justify-center">
-            <ThemeCircle
-              theme={theme}
-              size="lg"
-              index={index}
-            />
-          </div>
+          <ThemeCircle key={theme.id} theme={theme} size="lg" index={index} />
         ))}
       </div>
     </div>

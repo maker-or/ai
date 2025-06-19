@@ -13,7 +13,7 @@ export const ThemesPage: React.FC<ThemesPageProps> = ({ onBack }) => {
   const { themes, getThemesByCategory, currentTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-theme-bg-primary animate-in fade-in duration-500">
+    <div className="min-h-screen item-center justify-center bg-theme-bg-primary animate-in fade-in duration-500">
       {/* Header */}
       <header className="bg-theme-bg-secondary border-b border-theme-border-primary sticky top-0 z-10 backdrop-blur-sm animate-in slide-in-from-top duration-300">
         <div className="max-w-4xl mx-auto px-4 py-4">
@@ -22,7 +22,7 @@ export const ThemesPage: React.FC<ThemesPageProps> = ({ onBack }) => {
               variant="ghost"
               size="icon"
               onClick={onBack}
-              className="text-theme-text-secondary hover:text-theme-text-primary transition-colors duration-200"
+              className="text-theme-text-primary hover:text-theme-text-primary transition-colors duration-200"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -59,10 +59,6 @@ export const ThemesPage: React.FC<ThemesPageProps> = ({ onBack }) => {
               </h2>
               <p className="text-theme-text-secondary text-sm">
                 {currentTheme.description || `${currentTheme.category} theme`}
-              </p>
-              <p className="text-theme-text-muted text-xs mt-1 flex items-center gap-1">
-                <span className="w-2 h-2 bg-theme-success rounded-full animate-pulse"></span>
-                Applied to entire interface
               </p>
             </div>
           </div>

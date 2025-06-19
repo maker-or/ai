@@ -99,7 +99,7 @@ const OnboardingThemeSelector = () => {
         </div>
 
         {/* Theme Categories */}
-        <div className="space-y-8 sm:space-y-12">
+        <div className="space-y-8 item-center justify-center sm:space-y-12">
           {themeCategories.map((category, categoryIndex) => {
             const categoryThemes = getThemesByCategory(category.id);
 
@@ -109,7 +109,7 @@ const OnboardingThemeSelector = () => {
                 className="space-y-4 sm:space-y-6 animate-in slide-in-from-bottom duration-500"
                 style={{ animationDelay: `${categoryIndex * 100}ms` }}
               >
-                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 max-w-3xl mx-auto">
+                <div className="flex flex-row justify-center items-center gap-8 w-full">
                   {categoryThemes.map((theme, themeIndex) => {
                     const isSelected = currentTheme.id === theme.id;
                     const isChanging = changingTheme === theme.id;
@@ -202,7 +202,7 @@ const OnboardingThemeSelector = () => {
         </div>
 
         {/* Current Theme Preview */}
-        <div className="mt-8 sm:mt-12 p-4 sm:p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 max-w-md mx-auto">
+        <div className="mt-8 sm:mt-12 p-4 sm:p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 max-w-sm mx-auto">
           <div className="flex items-center gap-4">
             <div
               className="w-8 h-8 sm:w-12 sm:h-12 rounded-full border-2 border-white/50 flex-shrink-0"

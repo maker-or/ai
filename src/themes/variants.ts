@@ -125,9 +125,9 @@ export const Wavy: Theme = {
     text: {
       primary: "#E2F6FF",
       secondary: "#B0B7CD",
-      muted: "#7A829B",
+      muted: "#BAC4E3",
       inverse: "#1a0b2e",
-      heading: "#8DA2C7",
+      heading: "#2D334B",
       block: "#67759C",
     },
     border: {
@@ -154,7 +154,7 @@ export const Wavy: Theme = {
       hover: "#4D81B8",
     },
     success: "#6BAD6B",
-    warning: "#f59e0b",
+    warning: "#2D334B",
     error: "#ef4444",
   },
   preview: {
