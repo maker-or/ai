@@ -99,9 +99,9 @@ export const ModelSelector = ({
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-3 min-w-0">
               {SelectedModelLogo && (
-                <SelectedModelLogo 
-                  className="text-theme-accent flex-shrink-0" 
-                  size={20} 
+                <SelectedModelLogo
+                  className="text-base flex-shrink-0"
+                  size={20}
                 />
               )}
               <span className="font-semibold text-base truncate">
@@ -117,7 +117,9 @@ export const ModelSelector = ({
         className="w-[320px] max-w-[95vw] bg-theme-bg-secondary border-4 border-theme-border-primary shadow-2xl rounded-2xl p-2"
       >
         <div className="px-4 py-3 border-b border-theme-border-primary mb-2">
-          <h3 className="text-base font-bold text-theme-text-primary">AI Models</h3>
+          <h3 className="text-base font-bold text-theme-text-primary">
+            AI Models
+          </h3>
           <p className="text-xs text-theme-text-muted mt-1">
             Choose your preferred AI model
           </p>
@@ -138,7 +140,7 @@ export const ModelSelector = ({
             {models.map((model) => {
               const isActive = validSelectedModel === model.id;
               const ModelLogo = getModelLogo(model.id);
-              
+
               return (
                 <DropdownMenuItem
                   key={model.id}
@@ -153,17 +155,19 @@ export const ModelSelector = ({
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     {ModelLogo && (
-                      <ModelLogo 
+                      <ModelLogo
                         className={`flex-shrink-0 ${
-                          isActive ? "text-theme-accent" : "text-theme-text-muted group-hover:text-theme-accent"
+                          isActive
+                            ? "text-theme-accent"
+                            : "text-theme-text-muted group-hover:text-theme-accent"
                         } transition-colors duration-200`}
-                        size={20} 
+                        size={20}
                       />
                     )}
                     <span
                       className={`font-semibold text-base truncate ${
                         isActive
-                           ? "text-theme-accent"
+                          ? "text-theme-accent"
                           : "text-theme-text-primary"
                       }`}
                     >

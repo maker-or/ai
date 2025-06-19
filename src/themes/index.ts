@@ -7,9 +7,9 @@ export const themes: Theme[] = [
   nightTheme,
   Aquilux,
   Wavy,
-  Something,
-  Rose,
-  Normal,
+  // Something,
+  // Rose,
+  // Normal,
 ];
 
 export const defaultTheme = nightTheme;

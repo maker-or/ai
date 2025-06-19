@@ -31,6 +31,8 @@ module.exports = {
             secondary: "var(--theme-text-secondary)",
             muted: "var(--theme-text-muted)",
             inverse: "var(--theme-text-inverse)",
+            heading: "var(--theme-text-heading)",
+            block: "var(--theme-text-block)",
           },
           border: {
             primary: "var(--theme-border-primary)",

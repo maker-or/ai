@@ -13,7 +13,7 @@
   --theme-bg-sidebar: #f1f5f9;
   --theme-bg-chat: #ffffff;
 
-  --theme-text-primary: #F2EBFA;
+  --theme-text-primary: #f2ebfa;
   --theme-text-secondary: #64748b;
   --theme-text-muted: #94a3b8;
   --theme-text-inverse: #ffffff;
@@ -225,7 +225,6 @@ body.theme-transitioning * {
 /* Inline code */
 .markdown-content :not(pre) > code {
   background-color: var(--theme-text-block);
-  color: #f8f8f2;
   padding: 0.15em 0.4em;
   border-radius: 0.25em;
   font-size: 0.97em;
