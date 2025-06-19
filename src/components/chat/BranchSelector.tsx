@@ -20,7 +20,6 @@ interface BranchSelectorProps {
   branchDialogOpen?: boolean;
   setBranchDialogOpen?: (open: boolean) => void;
 }
-console.log("hello world");
 
 export const BranchSelector = ({
   chatId: propChatId,
@@ -34,11 +33,13 @@ export const BranchSelector = ({
   const [chatId, setChatId] = useState<Id<"chats"> | null>(propChatId ?? null);
 
   useEffect(() => {
-    if (!chatId) {
+    if (!chatId && propChatId) {
+      setChatId(propChatId);
+    } else if (!chatId) {
       const storedChatId = localStorage.getItem("chatId");
       if (storedChatId) setChatId(storedChatId as Id<"chats">);
     }
-  }, [chatId]);
+  }, [chatId, propChatId]);
 
   // Sync external dialog state
   useEffect(() => {
@@ -63,10 +64,27 @@ export const BranchSelector = ({
   const createBranch = useMutation(api.branches.createBranch);
   const switchToBranch = useMutation(api.branches.switchToBranch);
 
-  const resolvedMessageId = propMessageId ?? lastMessage?._id;
+  const resolvedMessageId = propMessageId || lastMessage?._id;
+
+  console.log("BranchSelector Debug:", {
+    propMessageId,
+    lastMessageId: lastMessage?._id,
+    resolvedMessageId,
+    chatId
+  });
 
   const handleCreateBranch = async () => {
+    console.log("handleCreateBranch called:", {
+      resolvedMessageId,
+      chatId,
+      branchName
+    });
+    
     if (!resolvedMessageId || !chatId) {
+      console.log("Missing required data:", {
+        resolvedMessageId: !!resolvedMessageId,
+        chatId: !!chatId
+      });
       toast.error("No message selected for branching");
       return;
     }
