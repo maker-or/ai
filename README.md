@@ -1,9 +1,12 @@
 # AI Chat App with Multi-LLM Support
-  
-This is a project built with [Chef](https://chef.convex.dev) using [Convex](https://convex.dev) as its backend.
-  
-This project is connected to the Convex deployment named [`joyous-shepherd-592`](https://dashboard.convex.dev/d/joyous-shepherd-592).
-  
+
+An open-source AI chat application with support for multiple Large Language Models, built with [Chef](https://chef.convex.dev) using [Convex](https://convex.dev) as its backend.
+
+## Contact
+
+📧 **Email:** harshith10295032@gmail.com  
+🐦 **Twitter:** https://x.com/pasupuleti73628?t=B2TtRfbhpSa0t2e_UNA44Q&s=09
+
 ## Project structure
   
 The frontend code is in the `app` directory and is built with [Vite](https://vitejs.dev/).
@@ -26,3 +29,11 @@ Check out the [Convex docs](https://docs.convex.dev/) for more information on ho
 ## HTTP API
 
 User-defined http routes are defined in the `convex/router.ts` file. We split these routes into a separate file from `convex/http.ts` to allow us to prevent the LLM from modifying the authentication routes.
+
+## Contributing
+
+This project is open source and contributions are welcome! Please feel free to submit issues and pull requests.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

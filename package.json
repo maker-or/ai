@@ -1,7 +1,7 @@
 {
-  "name": "flex-template",
-  "private": true,
+  "name": "ai-chat-app",
   "version": "0.0.0",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "npm-run-all --parallel dev:frontend dev:backend",
