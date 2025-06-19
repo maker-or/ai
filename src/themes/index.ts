@@ -1,9 +1,16 @@
 import { Theme, ThemeCategory } from "./types";
 
-import { ocenpurpleTheme, nightTheme , Aquilux} from "./variants";
+import { nightTheme, Aquilux, Wavy, Something, Rose, Normal } from "./variants";
 
 // All available themes
-export const themes: Theme[] = [ocenpurpleTheme, nightTheme, Aquilux];
+export const themes: Theme[] = [
+  nightTheme,
+  Aquilux,
+  Wavy,
+  Something,
+  Rose,
+  Normal,
+];
 
 export const defaultTheme = nightTheme;
 

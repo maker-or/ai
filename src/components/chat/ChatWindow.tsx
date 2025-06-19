@@ -201,6 +201,7 @@ export const ChatWindow = ({
   };
 
   const handleCreateBranch = (messageId: Id<"messages">) => {
+    console.log("ChatWindow handleCreateBranch called with:", messageId);
     setSelectedMessageId(messageId);
     setBranchDialogOpen(true);
   };
