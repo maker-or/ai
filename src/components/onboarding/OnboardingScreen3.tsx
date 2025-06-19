@@ -6,11 +6,14 @@ const OnboardingScreen3 = () => {
       <div className="max-w-2xl w-full text-center">
         {/* Keyboard Keys */}
         <div className="flex items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-12">
-          <div className="w-16 h-16 sm:w-36 sm:h-36 bg-white rounded-xl shadow-lg flex items-center justify-center border-8 border-theme-primary-active">
-            <Command size={24} className="text-gray-800 sm:w-8 sm:h-8" />
+          <div className="w-16 h-16 sm:w-36 sm:h-36 bg-theme-bg-secondary rounded-xl shadow-lg flex items-center justify-center border-8 border-theme-primary-active">
+            <Command
+              size={24}
+              className="text-theme-chat-assistant-text sm:w-8 sm:h-8"
+            />
           </div>
-          <div className="w-16 h-16 sm:w-36 sm:h-36 bg-white rounded-xl shadow-lg flex items-center justify-center border-8 border-theme-primary-active">
-            <span className="text-3xl sm:text-4xl font-serif italic font-bold text-gray-800">
+          <div className="w-16 h-16 sm:w-36 sm:h-36 bg-theme-bg-secondary rounded-xl shadow-lg flex items-center justify-center border-8 border-theme-primary-active">
+            <span className="text-3xl sm:text-4xl font-serif italic font-bold text-theme-chat-assistant-text">
               K
             </span>
           </div>
