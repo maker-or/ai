@@ -41,10 +41,11 @@ const applicationTables = {
     content: v.string(),
     parentId: v.optional(v.id("messages")),
     model: v.optional(v.string()),
-    isActive: v.boolean(),
+    isActive: v.optional(v.boolean()),
     branchId: v.optional(v.id("branches")),
     createdAt: v.number(),
-    webSearchUsed: v.optional(v.boolean()), // Track if web search was used for this message
+    webSearchUsed: v.optional(v.boolean()),
+    isProcessingComplete: v.optional(v.boolean()),
   })
     .index("by_chat", ["chatId"])
     .index("by_chat_and_parent", ["chatId", "parentId"])

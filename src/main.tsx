@@ -5,6 +5,8 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { measurePerformance } from "./lib/performance";
 import "./index.css";
 import App from "./App";
+import { createBrowserRouter, RouterProvider } from "react-router";
+import Learning from "./components/Learning";
 
 // Performance monitoring
 measurePerformance.mark("app-start");
@@ -20,10 +22,16 @@ document.documentElement.classList.add("react-loaded");
 
 measurePerformance.mark("react-render-start");
 
+const router = createBrowserRouter([
+  { path: "/", Component: App },
+  { path: "/learning", Component: Learning },
+  { path: "/learning/:chatId", Component: Learning },
+]);
+
 createRoot(document.getElementById("root")!).render(
   <ConvexAuthProvider client={convex}>
     <ThemeProvider>
-      <App />
+      <RouterProvider router={router} />
     </ThemeProvider>
   </ConvexAuthProvider>,
 );

@@ -1,7 +1,6 @@
 import { v } from "convex/values";
-import { query, mutation, internalMutation } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { Id } from "./_generated/dataModel";
 
 export const listChats = query({
   args: {},
@@ -15,10 +14,10 @@ export const listChats = query({
       .order("desc")
       .collect();
 
-    return chats.sort((a,b) => {
-      if(a.pinned === b.pinned) return 0;
-      return a.pinned ? -1:1;
-    })
+    return chats.sort((a, b) => {
+      if (a.pinned === b.pinned) return 0;
+      return a.pinned ? -1 : 1;
+    });
   },
 });
 
@@ -27,16 +26,15 @@ export const getChat = query({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     const chat = await ctx.db.get(args.chatId);
-    
+
     if (!chat) return null;
-    
+
     // Check if user owns the chat or if it's shared
     if (chat.userId !== userId && !chat.isShared) {
       return null;
     }
 
-    return chat
-    
+    return chat;
   },
 });
 
@@ -71,7 +69,7 @@ export const createChat = mutation({
       systemPrompt: args.systemPrompt,
       createdAt: now,
       updatedAt: now,
-      pinned : false,
+      pinned: false,
     });
 
     return chatId;
@@ -97,7 +95,8 @@ export const updateChat = mutation({
     const updates: any = { updatedAt: Date.now() };
     if (args.title !== undefined) updates.title = args.title;
     if (args.model !== undefined) updates.model = args.model;
-    if (args.systemPrompt !== undefined) updates.systemPrompt = args.systemPrompt;
+    if (args.systemPrompt !== undefined)
+      updates.systemPrompt = args.systemPrompt;
 
     await ctx.db.patch(args.chatId, updates);
   },
@@ -169,7 +168,7 @@ export const searchChats = query({
     const chats = await ctx.db
       .query("chats")
       .withSearchIndex("search_title", (q) =>
-        q.search("title", args.query).eq("userId", userId)
+        q.search("title", args.query).eq("userId", userId),
       )
       .take(20);
 
@@ -236,17 +235,16 @@ export const prefetchChatData = query({
   },
 });
 
-
 export const pinned = mutation({
-  args:{chatId:v.id("chats")},
- handler(ctx, args) {
-      ctx.db.patch(args.chatId,{pinned:true});
- },
-})
+  args: { chatId: v.id("chats") },
+  handler(ctx, args) {
+    void ctx.db.patch(args.chatId, { pinned: true });
+  },
+});
 
 export const unpinned = mutation({
-  args:{chatId:v.id("chats")},
- handler(ctx, args) {
-      ctx.db.patch(args.chatId,{pinned:false});
- },
-})
+  args: { chatId: v.id("chats") },
+  handler(ctx, args) {
+    void ctx.db.patch(args.chatId, { pinned: false });
+  },
+});

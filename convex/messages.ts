@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation, internalMutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { Id } from "./_generated/dataModel";
+// import { Id } from "./_generated/dataModel";
 
 export const getMessages = query({
   args: {
@@ -220,5 +220,60 @@ export const getLastMessageInChat = query({
       .order("desc")
       .collect();
     return messages[0] ?? null;
+  },
+});
+
+export const signalProcessingComplete = mutation({
+  args: {
+    parentMessageId: v.optional(v.id("messages")),
+    assistantMessageId: v.id("messages"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.assistantMessageId, {
+      isProcessingComplete: true,
+    });
+  },
+});
+
+export const getProcessingStatus = query({
+  args: {
+    parentId: v.optional(v.id("messages")),
+  },
+  handler: async (ctx, args) => {
+    if (!args.parentId) {
+      return false;
+    }
+
+    const completedMessages = await ctx.db
+      .query("messages")
+      .withIndex("by_parent", (q) => q.eq("parentId", args.parentId))
+      .filter((q) => q.eq(q.field("isProcessingComplete"), true))
+      .collect();
+
+    return completedMessages.length > 0;
+  },
+});
+
+export const getCompleteResponse = query({
+  args: {
+    parentId: v.optional(v.id("messages")),
+    completionSignal: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    if (!args.parentId || !args.completionSignal) {
+      return null;
+    }
+
+    const completedMessages = await ctx.db
+      .query("messages")
+      .withIndex("by_parent", (q) => q.eq("parentId", args.parentId))
+      .filter((q) => q.eq(q.field("isProcessingComplete"), true))
+      .collect();
+
+    if (completedMessages.length > 0) {
+      return completedMessages[0].content;
+    } else {
+      return null;
+    }
   },
 });

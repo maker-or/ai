@@ -1,18 +1,23 @@
-# AI Chat App with Multi-LLM Support
+# I should have started early
 
-An open-source AI chat application with support for multiple Large Language Models, built with [Chef](https://chef.convex.dev) using [Convex](https://convex.dev) as its backend.
+This is the easy about my experince when building [T3 chat](https://t3.chat/) clone
 
-## Contact
+## Why early
 
-📧 **Email:** harshith10295032@gmail.com  
-🐦 **Twitter:** https://x.com/pasupuleti73628?t=B2TtRfbhpSa0t2e_UNA44Q&s=09
+Even though i have seen the announcement post early , and started my intial development with [chef](https://chef.convex.dev/), I cloudn't continue for next few days, beacuse my collage project.
+
+Even though i started it late, i enviroment was completely different , usually i used to work with [clerk](https://clerk.com/),[vercel AI sdk](https://ai-sdk.dev/) , [Neon](https://neon.com/)+[Drizzle](https://orm.drizzle.team/), but  this project was completely different , i have changed the DB and auth to [Convex](https://www.convex.dev/) and started using OpenAI SDK instead of vercel ai sdk
+
+
+I know that i am not a great developer , and i cannot match the speed of t3.chat , but what i am is a good designer and i want to provide a good user experience. i have said is again and again the thinks i like about T3 chat is not their speed their colors across the  application , i want to take it open step a head by adding more color themes instead of one color theme
+
 
 ## Project structure
-  
+
 The frontend code is in the `app` directory and is built with [Vite](https://vitejs.dev/).
-  
+
 The backend code is in the `convex` directory.
-  
+
 `npm run dev` will start the frontend and backend servers.
 
 ## App authentication

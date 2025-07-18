@@ -19,10 +19,13 @@ import type * as branches from "../branches.js";
 import type * as chats from "../chats.js";
 import type * as http from "../http.js";
 import type * as messages from "../messages.js";
+import type * as open from "../open.js";
+import type * as parseNestedJson from "../parseNestedJson.js";
 import type * as resumable from "../resumable.js";
 import type * as router from "../router.js";
 import type * as saveApiKey from "../saveApiKey.js";
 import type * as sync from "../sync.js";
+import type * as test from "../test.js";
 import type * as testWebSearch from "../testWebSearch.js";
 import type * as users from "../users.js";
 
@@ -41,10 +44,13 @@ declare const fullApi: ApiFromModules<{
   chats: typeof chats;
   http: typeof http;
   messages: typeof messages;
+  open: typeof open;
+  parseNestedJson: typeof parseNestedJson;
   resumable: typeof resumable;
   router: typeof router;
   saveApiKey: typeof saveApiKey;
   sync: typeof sync;
+  test: typeof test;
   testWebSearch: typeof testWebSearch;
   users: typeof users;
 }>;

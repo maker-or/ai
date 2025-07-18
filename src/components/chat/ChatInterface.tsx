@@ -10,10 +10,12 @@ import Timeline from "./Timeline";
 
 interface ChatInterfaceProps {
   onNavigateToThemes?: () => void;
+  onNavigateToAgentPlan?: () => void;
 }
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   onNavigateToThemes,
+  onNavigateToAgentPlan,
 }) => {
   const [selectedChatId, setSelectedChatId] = useState<Id<"chats"> | null>(
     null,
@@ -110,6 +112,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         onSelectChat={handleSelectChat}
         onCreateChat={handleCreateChat}
         onNavigateToThemes={onNavigateToThemes}
+        onNavigateToAgentPlan={onNavigateToAgentPlan}
         onSignOut={() => void signOut()}
       />
     </div>

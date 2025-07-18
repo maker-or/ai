@@ -26,9 +26,11 @@ export const streamChatCompletion = action({
     webSearch: v.optional(v.boolean()),
   },
   handler: async (ctx, args): Promise<any> => {
-    console.log(`🚀 streamChatCompletion called with webSearch=${args.webSearch}`);
+    console.log(
+      `🚀 streamChatCompletion called with webSearch=${args.webSearch}`,
+    );
     console.log(`📝 Full args received:`, JSON.stringify(args, null, 2));
-    
+
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
@@ -41,6 +43,7 @@ export const streamChatCompletion = action({
     if (!openRouterKey) {
       openRouterKey = process.env.OPENROUTER_API_KEY || "";
     }
+    const helicone = process.env.HELICONE_API_KEY || "";
 
     if (!openRouterKey) {
       throw new Error(
@@ -67,40 +70,50 @@ export const streamChatCompletion = action({
         try {
           // Check if EXA_API_KEY is available
           const exaApiKeyValue = process.env.EXA_API_KEY;
-          console.log("EXA_API_KEY status:", exaApiKeyValue ? "Available" : "Missing");
-          
+          console.log(
+            "EXA_API_KEY status:",
+            exaApiKeyValue ? "Available" : "Missing",
+          );
+
           if (!exaApiKeyValue) {
             throw new Error(
               "EXA_API_KEY environment variable is required for web search",
             );
           }
 
-          console.log("Starting web search for:", userMessage.content.substring(0, 100) + "...");
-          
+          console.log(
+            "Starting web search for:",
+            userMessage.content.substring(0, 100) + "...",
+          );
+
           const exa = new Exa(exaApiKeyValue);
           console.log("Exa client created successfully");
-          
+
           const response = await exa.searchAndContents(userMessage.content, {
             type: "neural",
             numResults: 3,
             text: true,
             highlights: {
               numSentences: 3,
-              query: userMessage.content
-            }
+              query: userMessage.content,
+            },
           });
           console.log("Exa search completed successfully");
-          
+
           console.log("Web search response received:", {
             resultsCount: response.results?.length || 0,
-            autopromptString: response.autopromptString
+            autopromptString: response.autopromptString,
           });
 
           let searchResults = "";
           if (response.results && response.results.length > 0) {
             searchResults = response.results
               .map((r: any, i: number) => {
-                const content = r.text || r.highlights?.join(" ") || r.snippet || "No content available";
+                const content =
+                  r.text ||
+                  r.highlights?.join(" ") ||
+                  r.snippet ||
+                  "No content available";
                 const title = r.title || "Untitled";
                 const url = r.url || "No URL";
                 return `## Result ${i + 1}: ${title}\nURL: ${url}\nContent: ${content}`;
@@ -118,9 +131,8 @@ export const streamChatCompletion = action({
               content: `Web search results for "${userMessage.content}":\n\n${searchResults}\n\nPlease use this information to provide a comprehensive answer.`,
             },
           ];
-          
+
           console.log("Web search results added to context successfully");
-          
         } catch (error) {
           console.error("Web search error:", error);
           console.error("Error details:", {
@@ -128,8 +140,9 @@ export const streamChatCompletion = action({
             stack: error instanceof Error ? error.stack : undefined,
             name: error instanceof Error ? error.name : undefined,
           });
-          const errorMessage = error instanceof Error ? error.message : "Unknown error";
-          
+          const errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
+
           args.messages = [
             ...args.messages,
             {
@@ -180,11 +193,12 @@ export const streamChatCompletion = action({
     try {
       // OpenRouter client - use the retrieved API key
       const client = new OpenAI({
-        baseURL: "https://openrouter.ai/api/v1",
+        baseURL: "https://openrouter.helicone.ai/api/v1",
         apiKey: openRouterKey,
         defaultHeaders: {
-          "HTTP-Referer": "https://localhost:3000", // Optional: for OpenRouter analytics
-          "X-Title": "AI Chat App", // Optional: for OpenRouter analytics
+          "HTTP-Referer": "https://sphereai.in/", // Optional: for OpenRouter analytics
+          "X-Title": "sphereai.in",
+          "Helicone-Auth": `Bearer ${helicone}`, // Optional: for OpenRouter analytics
         },
       });
 
@@ -311,5 +325,12 @@ export const getAvailableModels = action({
         description: "Advanced open-source model by openai",
       },
     ];
+  },
+});
+
+export const test = action({
+  args: {},
+  handler: async () => {
+    return "This is a test function.";
   },
 });

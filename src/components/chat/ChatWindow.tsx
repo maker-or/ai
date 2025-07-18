@@ -5,14 +5,14 @@ import { useMutation, useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
-import { Menu } from "lucide-react";
+// import { Menu } from "lucide-react";
 import { Id } from "../../../convex/_generated/dataModel";
 import { toast } from "sonner";
 import { BranchSelector } from "./BranchSelector";
 import { MessageInput } from "./MessageInput";
 import MarkdownRenderer from "../ui/MarkdownRenderer";
 import { useChatData } from "../../hooks/useChatPrefetch";
-import { GitBranch, Copy, Globe } from "lucide-react";
+import { GitBranch, Copy } from "lucide-react";
 
 interface PrefetchedChatData {
   chat: any;
@@ -41,6 +41,7 @@ export const ChatWindow = ({
   const [selectedModel, setSelectedModel] = useState(
     "nvidia/llama-3.3-nemotron-super-49b-v1:free",
   );
+
   const [selectedMessageId, setSelectedMessageId] = useState<
     Id<"messages"> | undefined
   >(undefined);
@@ -199,6 +200,7 @@ export const ChatWindow = ({
       await navigator.clipboard.writeText(text);
       toast.success("Copied to clipboard");
     } catch (error) {
+      console.error(error);
       toast.error("Failed to copy");
     }
   };
@@ -262,11 +264,7 @@ export const ChatWindow = ({
       <ScrollArea className="flex-1  p-4" ref={scrollAreaRef}>
         <div className="max-w-4xl mx-auto space-y-6">
           {messages.map((msg) => (
-            <div
-              key={msg._id}
-              id={`message-${msg._id}`}
-              className="group"
-            >
+            <div key={msg._id} id={`message-${msg._id}`} className="group">
               <div
                 className={`flex items-start space-x-3 ${
                   msg.role === "user" ? "flex-row-reverse space-x-reverse" : ""
@@ -279,7 +277,6 @@ export const ChatWindow = ({
                       : " text-theme-chat-assistant-text"
                   }`}
                 >
-
                   <div className="message-content">
                     {msg.role === "user" ? (
                       <div className="whitespace-pre-wrap">
@@ -288,7 +285,9 @@ export const ChatWindow = ({
                     ) : (
                       <MarkdownRenderer
                         chunks={
-                          Array.isArray(msg.content) ? msg.content : [msg.content]
+                          Array.isArray(msg.content)
+                            ? msg.content
+                            : [msg.content]
                         }
                         id={msg._id}
                       />
@@ -296,9 +295,11 @@ export const ChatWindow = ({
                   </div>
                 </div>
               </div>
-              <div className={`flex items-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity ${
-                msg.role === "user" ? "justify-end" : "justify-start"
-              }`}>
+              <div
+                className={`flex items-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity ${
+                  msg.role === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
                 <div className="flex items-center space-x-1">
                   <Button
                     variant="ghost"

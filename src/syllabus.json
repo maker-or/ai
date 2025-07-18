@@ -1,0 +1,49 @@
+{
+  "units": [
+    {
+      "unit": 1,
+      "topics": [
+        "Algorithmic complexity",
+        "Performance and Analysis",
+        "Linear lists (Arrays)",
+        "Applications of Linear List: Searching and Sorting"
+      ]
+    },
+    {
+      "unit": 2,
+      "topics": [
+        "Stacks and Queues",
+        "Linked Lists: Single Linked List, Double Linked List, Circular Linked List",
+        "Stack and Queues using Linked list"
+      ]
+    },
+    {
+      "unit": 3,
+      "topics": [
+        "Binary Trees Operations",
+        "Tree traversal",
+        "Threaded Binary Trees",
+        "Binary Search Trees",
+        "Binary Heap"
+      ]
+    },
+    {
+      "unit": 4,
+      "topics": [
+        "Elementary Graph Operations",
+        "Graph Traversals",
+        "Minimum cost spanning tree Algorithms",
+        "Shortest paths algorithms"
+      ]
+    },
+    {
+      "unit": 5,
+      "topics": [
+        "Concept Hashing",
+        "Hash Functions",
+        "Collision Resolution Techniques",
+        "Pattern Matching algorithms"
+      ]
+    }
+  ]
+}
