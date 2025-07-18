@@ -156,7 +156,7 @@ export const agent = action({
           });
         }
 
-        const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&cx=${CX}&searchType=image&key=${API_KEY}&num=10`;
+        const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX}&searchType=image&num=10&q=${encodeURIComponent(query)}&imgSize=medium&imgType=photo&safe=active`;
 
         try {
           const res = await fetch(url);
@@ -169,13 +169,30 @@ export const agent = action({
           }
 
           const data = await res.json();
-          const images = (data.items || []).map((item: any) => ({
-            title: item.title,
-            link: item.link,
-            thumbnail: item.image?.thumbnailLink,
-            contextLink: item.image?.contextLink,
-            mime: item.mime,
-          }));
+          
+          // Filter and validate images
+          const images = (data.items || [])
+            .map((item: any) => ({
+              title: item.title,
+              link: item.link,
+              thumbnail: item.image?.thumbnailLink,
+              contextLink: item.image?.contextLink,
+              mime: item.mime,
+              width: item.image?.width,
+              height: item.image?.height,
+            }))
+            .filter((img: any) => {
+              // Filter out invalid or problematic images
+              return img.link && 
+                     (img.link.startsWith('http://') || img.link.startsWith('https://')) &&
+                     !img.link.includes('x-raw-image') &&
+                     !img.link.includes('data:image') &&
+                     img.mime && 
+                     (img.mime.startsWith('image/') || img.mime.includes('image')) &&
+                     img.width && img.height &&
+                     parseInt(img.width) > 100 && parseInt(img.height) > 100;
+            })
+            .slice(0, 5); // Limit to top 5 valid images
 
           return JSON.stringify({
             query,
@@ -342,11 +359,21 @@ export const agent = action({
 You must use your available tools to gather all the necessary components for the learning module. For any given topic, you should:
 
 1. Use "getSyllabusTools" to get a detailed syllabus
-2. Use "getImagesTools" to get relevant images
+2. Use "getImagesTools" to get relevant images - IMPORTANT: Only use valid image URLs that start with http:// or https://
 3. Use "flashcardsTools" to create flashcards for key concepts (max 3 per slide)
 4. Use "testTools" to create assessment questions (max 10 questions per request)
 5. If the topic is code-related, use "getCodeTools" to get code examples
 6. Use "webSearchTools" and "knowledgeSearchTools" to enrich your content
+
+CRITICAL: After calling tools, you MUST parse their JSON results and extract the data to populate your final JSON response.
+
+When processing images from getImagesTools:
+- CRITICAL: Extract the "link" field from the first valid image in the results
+- Set the "picture" field in your JSON output to this exact URL
+- Ensure the URL starts with http:// or https://
+- Example: If getImagesTools returns {"images": [{"link": "https://example.com/image.jpg"}]}, set "picture": "https://example.com/image.jpg"
+- DO NOT use placeholder URLs like "https://example.com" - use actual URLs from the tool results
+- If no valid images are found, leave the picture field empty ("")
 
 After gathering all information from tools, you must output a valid JSON object that matches this structure:
 {
@@ -383,6 +410,19 @@ After gathering all information from tools, you must output a valid JSON object 
   ]
 }
 
+IMPORTANT: You must use the results from your tool calls to populate the JSON fields:
+- Use image URLs from getImagesTools results for the "picture" field
+- Use flashcard data from flashcardsTools results for the "flashcardData" field  
+- Use test questions from testTools results for the "testQuestions" field
+- Use code examples from getCodeTools results for the "code" field
+- for image or picture don't use any book cover or the images of text book
+- you don't need to show images for test or the flash cards or for the tables or the code
+-try to retrive only relevant images for the topic
+- always make sure that you render the test and flash card in the new slide , so that we can provide better learning experience
+- alway rember that to keep the user expreience high so struture the content in a way that is easy to understand and follow
+- When creating test questions, always create a dedicated slide with type "test" for the test questions
+- When creating flashcards, always create a dedicated slide with type "flashcard" for the flashcards
+- Structure the content so that test questions and flashcards are on separate slides from the main content
 Your final response must be valid JSON only, no additional text.`,
         prompt: args.messages,
         tools: {
@@ -398,6 +438,14 @@ Your final response must be valid JSON only, no additional text.`,
       });
 
       console.log("the final result is", result);
+      console.log("tool results:", result.toolResults);
+      
+      // Log tool results for debugging
+      if (result.toolResults) {
+        result.toolResults.forEach((toolResult, index) => {
+          console.log(`Tool ${index + 1} (${toolResult.toolName}):`, toolResult.result);
+        });
+      }
 
       // Function to sanitize slide data to match schema
       const sanitizeSlide = (slide: any) => {
@@ -416,8 +464,8 @@ Your final response must be valid JSON only, no additional text.`,
           youtubeSearchText:
             slide.youtubeSearchText || "Learn more about this topic",
           code: {
-            language: slide.code?.language || "javascript",
-            content: slide.code?.content || "// Code example",
+            language: slide.code?.language || "",
+            content: slide.code?.content || "",
           },
           tables: slide.tables || "",
           bulletPoints: Array.isArray(slide.bulletPoints)
@@ -489,8 +537,15 @@ Your final response must be valid JSON only, no additional text.`,
               switch (toolResult.toolName) {
                 case "getImagesTools":
                   if (parsedResult.images && parsedResult.images.length > 0) {
-                    structuredOutput.slides[0].picture =
-                      parsedResult.images[0].link || "";
+                    // Find the first valid image URL
+                    const validImage = parsedResult.images.find((img: any) => 
+                      img.link && 
+                      (img.link.startsWith('http://') || img.link.startsWith('https://')) &&
+                      !img.link.includes('x-raw-image')
+                    );
+                    if (validImage) {
+                      structuredOutput.slides[0].picture = validImage.link;
+                    }
                   }
                   break;
                 case "flashcardsTools":
@@ -532,6 +587,9 @@ Your final response must be valid JSON only, no additional text.`,
         }
       }
 
+      // Debug: log the structured output before validation
+      console.log("Final structured output before validation:", JSON.stringify(structuredOutput, null, 2));
+      
       // Validate against schema
       const parsed = AgentOutputSchema.safeParse(structuredOutput);
       if (!parsed.success) {

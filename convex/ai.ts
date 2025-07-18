@@ -208,7 +208,7 @@ export const streamChatCompletion = action({
       }
 
       const response = await client.chat.completions.create({
-        model: args.model,
+        model: "google/gemini-2.5-flash",
         messages: allMessages,
         stream: true,
         temperature: 0.7,

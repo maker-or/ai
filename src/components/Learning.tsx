@@ -11,7 +11,7 @@ import {
 } from "@phosphor-icons/react";
 import { CheckCircle2, Circle, CircleDotDashed } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import React from "react";
 import { useMutation, useAction, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -595,8 +595,12 @@ const ContentBlock: React.FC<{
       }
     }
 
-    // Add code block if it exists and is not already in content
-    if (slide.codeContent && !content.includes("```")) {
+    // Add code block if it exists and is not already in content, and is not a placeholder
+    if (slide.codeContent && 
+        slide.codeContent.trim() !== "" && 
+        !slide.codeContent.includes("// Code example") &&
+        !slide.codeContent.includes("// Code example will be generated") &&
+        !content.includes("```")) {
       const codeContent =
         typeof slide.codeContent === "string"
           ? slide.codeContent
@@ -898,21 +902,47 @@ const ContentBlock: React.FC<{
     typeof slide.tables === "string" &&
     slide.tables.trim() !== "";
   const isTableSlide = hasTableContent;
-  const isTestSlide =
-    slide.type === "test" &&
-    slide.testQuestions &&
+  
+  // Check if slide has test questions (regardless of type)
+  const hasTestQuestions = slide.testQuestions &&
     ((typeof slide.testQuestions === "string" &&
       slide.testQuestions.trim() !== "") ||
       (Array.isArray(slide.testQuestions) && slide.testQuestions.length > 0));
+  
+  const isTestSlide = hasTestQuestions;
+  
   const isFlashcardSlide =
-    slide.type === "flashcard" &&
     slide.flashcardData &&
     Array.isArray(slide.flashcardData) &&
     slide.flashcardData.length > 0;
 
+  // Debug logging for slide detection
+  console.log(`ContentBlock - Slide "${slide.title}":`, {
+    type: slide.type,
+    hasTestQuestions,
+    isTestSlide,
+    testQuestions: slide.testQuestions,
+    testQuestionsType: typeof slide.testQuestions,
+    testQuestionsLength: Array.isArray(slide.testQuestions) ? slide.testQuestions.length : 'N/A',
+    isFlashcardSlide,
+    flashcardData: slide.flashcardData,
+    isTableSlide
+  });
+
   // Extract visual content (images, code, diagrams)
+  // Check if codeContent has actual content (not empty or placeholder)
+  const hasActualCodeContent = slide.codeContent && 
+    slide.codeContent.trim() !== "" && 
+    !slide.codeContent.includes("// Code example") &&
+    !slide.codeContent.includes("// Code example will be generated");
+  
   const hasVisualContent =
-    slide.picture || slide.codeContent || combinedContent.includes("```");
+    slide.picture || hasActualCodeContent || (combinedContent.includes("```") && !combinedContent.includes("// Code example"));
+  
+  // Debug logging for slide data
+  console.log("ContentBlock - slide.picture:", slide.picture);
+  console.log("ContentBlock - hasActualCodeContent:", hasActualCodeContent);
+  console.log("ContentBlock - hasVisualContent:", hasVisualContent);
 
   // Extract text content for right panel
   const getTextContent = () => {
@@ -957,11 +987,7 @@ const ContentBlock: React.FC<{
 
         <div className="flex-1 px-8">
           {/* Test Component */}
-          {slide.testQuestions &&
-          ((typeof slide.testQuestions === "string" &&
-            slide.testQuestions.trim() !== "") ||
-            (Array.isArray(slide.testQuestions) &&
-              slide.testQuestions.length > 0)) ? (
+          {hasTestQuestions ? (
             <TestComponent testQuestions={slide.testQuestions} />
           ) : (
             <div className="text-center p-8 text-[#f7eee3]/60">
@@ -1182,7 +1208,11 @@ const ContentBlock: React.FC<{
                     }
                     alt={slide.title}
                     className="w-full max-w-full mx-auto rounded-lg shadow-lg object-contain max-h-[60vh]"
+                    onLoad={() => {
+                      console.log("Image loaded successfully:", slide.picture);
+                    }}
                     onError={(e) => {
+                      console.error("Image failed to load:", slide.picture);
                       const target = e.target as HTMLImageElement;
                       target.style.display = "none";
                     }}
@@ -1191,7 +1221,7 @@ const ContentBlock: React.FC<{
               )}
 
               {/* Code Block */}
-              {slide.codeContent && (
+              {hasActualCodeContent && (
                 <div className="mb-6">
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
@@ -1204,7 +1234,7 @@ const ContentBlock: React.FC<{
               )}
 
               {/* Code from markdown content */}
-              {!slide.codeContent && combinedContent.includes("```") && (
+              {!hasActualCodeContent && combinedContent.includes("```") && !combinedContent.includes("// Code example") && (
                 <div className="mb-6">
                   <div className="prose prose-lg prose-invert max-w-none">
                     <ReactMarkdown
@@ -1608,21 +1638,61 @@ const Learning = () => {
       // The AI is returning `code: { content: '...', language: '...' }`
       // but the frontend expects `codeContent: '...'` and `codeLanguage: '...'`.
       return parsedData.slides.map((slide) => {
+        // Ensure all required fields are present with defaults
+        const transformedSlide = {
+          name: slide.name || "slide 1",
+          title: slide.title || "Learning Module",
+          content: slide.content || "",
+          type: slide.type || "markdown",
+          subTitles: slide.subTitles || "",
+          picture: slide.picture || "",
+          links: slide.links || [],
+          youtubeSearchText: slide.youtubeSearchText || "",
+          codeLanguage: slide.codeLanguage || "",
+          codeContent: slide.codeContent || "",
+          tables: slide.tables || "",
+          bulletPoints: slide.bulletPoints || [],
+          audioScript: slide.audioScript || "",
+          testQuestions: slide.testQuestions || [],
+          flashcardData: slide.flashcardData || [],
+        };
+
+        // Handle nested code object if present
         if (slide.code && typeof slide.code.content !== "undefined") {
-          const { code, ...rest } = slide;
-          return {
-            ...rest,
-            codeContent: code.content,
-            codeLanguage: code.language || "",
-          };
+          transformedSlide.codeContent = slide.code.content;
+          transformedSlide.codeLanguage = slide.code.language || "";
         }
-        return slide;
+
+        return transformedSlide;
       });
     } catch (error) {
       console.error("Error parsing and transforming slides:", error);
       return [];
     }
   }, [messages]);
+
+  // Debug: log the transformed slides
+  useEffect(() => {
+    if (slides.length > 0) {
+      console.log("Transformed slides:", slides);
+      slides.forEach((slide, index) => {
+        console.log(`Slide ${index + 1}:`, {
+          title: slide.title,
+          type: slide.type,
+          picture: slide.picture,
+          pictureExists: !!slide.picture,
+          pictureLength: slide.picture?.length || 0,
+          hasVisualContent: !!(slide.picture || slide.codeContent || slide.tables),
+          testQuestions: slide.testQuestions,
+          hasTestQuestions: !!(slide.testQuestions && 
+            ((typeof slide.testQuestions === "string" && slide.testQuestions.trim() !== "") ||
+             (Array.isArray(slide.testQuestions) && slide.testQuestions.length > 0))),
+          flashcardData: slide.flashcardData,
+          hasFlashcards: !!(slide.flashcardData && Array.isArray(slide.flashcardData) && slide.flashcardData.length > 0),
+        });
+      });
+    }
+  }, [slides]);
 
   // Set viewing mode when we have a chatId and slides
   useEffect(() => {
@@ -1631,35 +1701,34 @@ const Learning = () => {
     }
   }, [chatId, slides]);
 
+  // Navigation handlers
+  const handlePrevious = useCallback(() => {
+    setCurrentSlideIndex((prev) => Math.max(0, prev - 1));
+  }, []);
+
+  const handleNext = useCallback(() => {
+    setCurrentSlideIndex((prev) => Math.min(slides.length - 1, prev + 1));
+  }, []);
+
   // Keyboard navigation
   useEffect(() => {
-    const handlePrevious = () => {
-      setCurrentSlideIndex((prev) => Math.max(0, prev - 1));
-    };
-
-    const handleNext = () => {
-      setCurrentSlideIndex((prev) => Math.min(slides.length - 1, prev + 1));
-    };
-
     const handleKeyDown = (e: KeyboardEvent) => {
+      console.log("Key pressed:", e.key, "App state:", appstate); // Debug log
       if (appstate === "viewing") {
-        if (e.key === "ArrowLeftIcon") handlePrevious();
-        if (e.key === "ArrowRightIcon") handleNext();
+        if (e.key === "ArrowLeft") {
+          console.log("Going to previous slide"); // Debug log
+          handlePrevious();
+        }
+        if (e.key === "ArrowRight") {
+          console.log("Going to next slide"); // Debug log
+          handleNext();
+        }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [appstate, slides.length]);
-
-  // Navigation handlers
-  const handlePrevious = () => {
-    setCurrentSlideIndex((prev) => Math.max(0, prev - 1));
-  };
-
-  const handleNext = () => {
-    setCurrentSlideIndex((prev) => Math.min(slides.length - 1, prev + 1));
-  };
+  }, [appstate, slides.length, handlePrevious, handleNext]);
 
   // Viewing mode - show interactive content blocks
   if (appstate === "viewing" && slides.length > 0) {
