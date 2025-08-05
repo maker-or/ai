@@ -4,6 +4,9 @@ import { v } from "convex/values";
 import { action } from "./_generated/server";
 import { api, internal } from "./_generated/api";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { getEmbedding } from "../utils/embeddings";
+import { Pinecone } from "@pinecone-database/pinecone";
+import { type ConvertibleMessage } from "../utils/types";
 import OpenAI from "openai";
 import Exa from "exa-js";
 
@@ -38,6 +41,7 @@ export const streamChatCompletion = action({
     const decryptedKey = await ctx.runQuery(api.saveApiKey.getkey, {});
 
     let openRouterKey = decryptedKey || "";
+    const pineconekey = process.env.PINECONE_API_KEY;
 
     // Fallback to environment variable if no user key is stored
     if (!openRouterKey) {
@@ -51,12 +55,22 @@ export const streamChatCompletion = action({
       );
     }
 
+    if (!pineconekey) {
+      throw new Error(
+        "pineconekey API key is required. Please add your API key in settings.",
+      );
+    }
+
     // Validate API key format
     if (!openRouterKey.startsWith("sk-")) {
       throw new Error(
         "Invalid OpenRouter API key format. Key should start with 'sk-'",
       );
     }
+
+    const pinecone = new Pinecone({
+      apiKey: pineconekey,
+    });
 
     const prompt = await ctx.runQuery(api.users.getPrompt, {});
 
@@ -207,12 +221,38 @@ export const streamChatCompletion = action({
         allMessages.unshift({ role: "system", content: prompt });
       }
 
+      const embeddings = await getEmbedding(
+        allMessages.map((msg) => msg.content).join(" "),
+      );
+      const index = pinecone.index("algorithm");
+      const Semantic_search = await index.namespace("__default__").query({
+        vector: embeddings,
+        topK: 5,
+        includeMetadata: true,
+        includeValues: false,
+      });
+
+      const textContent = Semantic_search.matches
+        .map((match) => match.metadata?.text)
+        .filter(Boolean);
+      console.log("the textcontent is : ", textContent);
+      const resultsString = textContent.join("\n\n");
+      console.log("############################################");
+      console.log("the resultsString is : ", resultsString);
+      console.log("############################################");
+      // Add the retrieved context as a system message
+      if (resultsString) {
+        allMessages.unshift({
+          role: "system",
+          content: `Relevant context from knowledge base:\n\n${resultsString} when using this make sure that you also specify the sources at the end of the respose`,
+        });
+      }
+
       const response = await client.chat.completions.create({
-        model: "google/gemini-2.5-flash",
+        model: args.model || "google/gemini-2.5-flash-lite",
         messages: allMessages,
         stream: true,
         temperature: 0.7,
-        max_tokens: 4096,
       });
 
       console.log("OpenAI response created successfully");
@@ -304,8 +344,8 @@ export const getAvailableModels = action({
     // Return only the two supported models
     return [
       {
-        id: "nvidia/llama-3.3-nemotron-super-49b-v1:free",
-        name: "Llama 3.3 Nemotron",
+        id: "moonshotai/kimi-k2:free",
+        name: "Kimi-k2",
         description: "Advanced open-source model by NVIDIA",
       },
       {
@@ -315,13 +355,13 @@ export const getAvailableModels = action({
       },
 
       {
-        id: "openai/gpt-4.1",
+        id: "openrouter/horizon-beta",
         name: "GPT-4.1",
         description: "Advanced open-source model by openai",
       },
       {
-        id: "anthropic/claude-sonnet-4",
-        name: "claude-sonnet-4",
+        id: "z-ai/glm-4.5-air:free",
+        name: "GLM-4.5",
         description: "Advanced open-source model by openai",
       },
     ];

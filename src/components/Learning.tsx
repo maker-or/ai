@@ -596,11 +596,13 @@ const ContentBlock: React.FC<{
     }
 
     // Add code block if it exists and is not already in content, and is not a placeholder
-    if (slide.codeContent && 
-        slide.codeContent.trim() !== "" && 
-        !slide.codeContent.includes("// Code example") &&
-        !slide.codeContent.includes("// Code example will be generated") &&
-        !content.includes("```")) {
+    if (
+      slide.codeContent &&
+      slide.codeContent.trim() !== "" &&
+      !slide.codeContent.includes("// Code example") &&
+      !slide.codeContent.includes("// Code example will be generated") &&
+      !content.includes("```")
+    ) {
       const codeContent =
         typeof slide.codeContent === "string"
           ? slide.codeContent
@@ -902,15 +904,16 @@ const ContentBlock: React.FC<{
     typeof slide.tables === "string" &&
     slide.tables.trim() !== "";
   const isTableSlide = hasTableContent;
-  
+
   // Check if slide has test questions (regardless of type)
-  const hasTestQuestions = slide.testQuestions &&
+  const hasTestQuestions =
+    slide.testQuestions &&
     ((typeof slide.testQuestions === "string" &&
       slide.testQuestions.trim() !== "") ||
       (Array.isArray(slide.testQuestions) && slide.testQuestions.length > 0));
-  
+
   const isTestSlide = hasTestQuestions;
-  
+
   const isFlashcardSlide =
     slide.flashcardData &&
     Array.isArray(slide.flashcardData) &&
@@ -923,22 +926,28 @@ const ContentBlock: React.FC<{
     isTestSlide,
     testQuestions: slide.testQuestions,
     testQuestionsType: typeof slide.testQuestions,
-    testQuestionsLength: Array.isArray(slide.testQuestions) ? slide.testQuestions.length : 'N/A',
+    testQuestionsLength: Array.isArray(slide.testQuestions)
+      ? slide.testQuestions.length
+      : "N/A",
     isFlashcardSlide,
     flashcardData: slide.flashcardData,
-    isTableSlide
+    isTableSlide,
   });
 
   // Extract visual content (images, code, diagrams)
   // Check if codeContent has actual content (not empty or placeholder)
-  const hasActualCodeContent = slide.codeContent && 
-    slide.codeContent.trim() !== "" && 
+  const hasActualCodeContent =
+    slide.codeContent &&
+    slide.codeContent.trim() !== "" &&
     !slide.codeContent.includes("// Code example") &&
     !slide.codeContent.includes("// Code example will be generated");
-  
+
   const hasVisualContent =
-    slide.picture || hasActualCodeContent || (combinedContent.includes("```") && !combinedContent.includes("// Code example"));
-  
+    slide.picture ||
+    hasActualCodeContent ||
+    (combinedContent.includes("```") &&
+      !combinedContent.includes("// Code example"));
+
   // Debug logging for slide data
   console.log("ContentBlock - slide.picture:", slide.picture);
   console.log("ContentBlock - hasActualCodeContent:", hasActualCodeContent);
@@ -1234,34 +1243,40 @@ const ContentBlock: React.FC<{
               )}
 
               {/* Code from markdown content */}
-              {!hasActualCodeContent && combinedContent.includes("```") && !combinedContent.includes("// Code example") && (
-                <div className="mb-6">
-                  <div className="prose prose-lg prose-invert max-w-none">
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm, remarkMath]}
-                      rehypePlugins={[rehypeKatex, rehypeHighlight, rehypeRaw]}
-                      components={{
-                        ...markdownComponents,
-                        // Only render code blocks, ignore other elements
-                        p: () => null,
-                        h1: () => null,
-                        h2: () => null,
-                        h3: () => null,
-                        h4: () => null,
-                        ul: () => null,
-                        ol: () => null,
-                        li: () => null,
-                        blockquote: () => null,
-                        a: () => null,
-                        strong: () => null,
-                        em: () => null,
-                      }}
-                    >
-                      {combinedContent}
-                    </ReactMarkdown>
+              {!hasActualCodeContent &&
+                combinedContent.includes("```") &&
+                !combinedContent.includes("// Code example") && (
+                  <div className="mb-6">
+                    <div className="prose prose-lg prose-invert max-w-none">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm, remarkMath]}
+                        rehypePlugins={[
+                          rehypeKatex,
+                          rehypeHighlight,
+                          rehypeRaw,
+                        ]}
+                        components={{
+                          ...markdownComponents,
+                          // Only render code blocks, ignore other elements
+                          p: () => null,
+                          h1: () => null,
+                          h2: () => null,
+                          h3: () => null,
+                          h4: () => null,
+                          ul: () => null,
+                          ol: () => null,
+                          li: () => null,
+                          blockquote: () => null,
+                          a: () => null,
+                          strong: () => null,
+                          em: () => null,
+                        }}
+                      >
+                        {combinedContent}
+                      </ReactMarkdown>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           </div>
         )}
@@ -1529,16 +1544,49 @@ const SlideNavigation: React.FC<{
             ))}
           </>
         ) : currentSlide.youtubeSearchText ? (
-          <a
-            href={`https://www.youtube.com/results?search_query=${encodeURIComponent(
-              currentSlide.youtubeSearchText,
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-red-600/80 hover:bg-red-500/80 text-white text-sm rounded-full transition-all duration-200 font-medium"
-          >
-            YouTube
-          </a>
+          <div className="flex items-center gap-3">
+            <svg
+              className="shrink-0"
+              width="24"
+              height="18"
+              viewBox="0 0 17 12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <g clipPath="url(#clip0_4628_1763)">
+                <path
+                  d="M16.6309 2.08265C16.5351 1.72843 16.3481 1.4055 16.0886 1.14601C15.8292 0.886525 15.5062 0.699538 15.152 0.603671C13.8552 0.25 8.63606 0.25 8.63606 0.25C8.63606 0.25 3.41663 0.260705 2.11984 0.614377C1.76561 0.710249 1.44268 0.897246 1.1832 1.15674C0.923728 1.41624 0.73676 1.73919 0.640919 2.09343C0.248669 4.39758 0.0965076 7.90857 0.651689 10.1206C0.74754 10.4748 0.934513 10.7977 1.19399 11.0572C1.45346 11.3167 1.77639 11.5037 2.13061 11.5995C3.4274 11.9532 8.6467 11.9532 8.6467 11.9532C8.6467 11.9532 13.8659 11.9532 15.1627 11.5995C15.5169 11.5037 15.8398 11.3167 16.0993 11.0572C16.3588 10.7977 16.5458 10.4748 16.6416 10.1206C17.0554 7.81314 17.1829 4.3043 16.6309 2.08265Z"
+                  fill="#FF0000"
+                />
+                <path
+                  d="M6.97656 8.60938L11.3063 6.10157L6.97656 3.59375V8.60938Z"
+                  fill="white"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_4628_1763">
+                  <rect
+                    width="16.7109"
+                    height="11.7499"
+                    fill="white"
+                    transform="translate(0.289062 0.25)"
+                  />
+                </clipPath>
+              </defs>
+            </svg>
+
+            <a
+              href={`https://www.32.71.com/results?search_query=${encodeURIComponent(
+                currentSlide.youtubeSearchText,
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full bg-red-600/80 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-red-500/80"
+            >
+              YouTube
+            </a>
+          </div>
         ) : null}
 
         {/* Navigation Buttons */}
@@ -1682,13 +1730,25 @@ const Learning = () => {
           picture: slide.picture,
           pictureExists: !!slide.picture,
           pictureLength: slide.picture?.length || 0,
-          hasVisualContent: !!(slide.picture || slide.codeContent || slide.tables),
+          hasVisualContent: !!(
+            slide.picture ||
+            slide.codeContent ||
+            slide.tables
+          ),
           testQuestions: slide.testQuestions,
-          hasTestQuestions: !!(slide.testQuestions && 
-            ((typeof slide.testQuestions === "string" && slide.testQuestions.trim() !== "") ||
-             (Array.isArray(slide.testQuestions) && slide.testQuestions.length > 0))),
+          hasTestQuestions: !!(
+            slide.testQuestions &&
+            ((typeof slide.testQuestions === "string" &&
+              slide.testQuestions.trim() !== "") ||
+              (Array.isArray(slide.testQuestions) &&
+                slide.testQuestions.length > 0))
+          ),
           flashcardData: slide.flashcardData,
-          hasFlashcards: !!(slide.flashcardData && Array.isArray(slide.flashcardData) && slide.flashcardData.length > 0),
+          hasFlashcards: !!(
+            slide.flashcardData &&
+            Array.isArray(slide.flashcardData) &&
+            slide.flashcardData.length > 0
+          ),
         });
       });
     }
