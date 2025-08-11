@@ -1,4 +1,4 @@
-# AI Chat App with Multi-LLM Support
+# RAG Demonstration
 
 An open-source AI chat application with support for multiple Large Language Models. This project demonstrates **Retrieval-Augmented Generation (RAG)**, enabling file-based context injection for richer and more accurate conversations. It is built with [Vite](https://vite.dev/) and uses [Convex](https://convex.dev/) as its backend.
 
