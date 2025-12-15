@@ -25,20 +25,34 @@ interface Model {
 
 const DEFAULT_MODELS: Model[] = [
   {
+<<<<<<< HEAD
     id: "moonshotai/kimi-k2:free",
     name: "Kimi-k2",
+=======
+    id: "nvidia/llama-3.3-nemotron-super-49b-v1:free",
+    name: "Llama 3.3 Nemotron",
+>>>>>>> origin/main
   },
   {
     id: "deepseek/deepseek-chat-v3-0324:free",
     name: "DeepSeek Chat",
   },
   {
+<<<<<<< HEAD
     id: "openrouter/horizon-beta",
     name: "GPT-4.1",
   },
   {
     id: "z-ai/glm-4.5-air:free",
     name: "GLM-4.5",
+=======
+    id: "openai/gpt-4.1",
+    name: "GPT-4.1",
+  },
+  {
+    id: "anthropic/claude-sonnet-4",
+    name: "Claude Sonnet 4",
+>>>>>>> origin/main
   },
 ];
 

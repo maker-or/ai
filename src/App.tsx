@@ -43,3 +43,22 @@ export default function App() {
     </div>
   );
 }
+<<<<<<< HEAD
+=======
+
+// function Content() {
+//   const loggedInUser = useQuery(api.auth.loggedInUser);
+
+//     return (
+//       <div className="flex flex-col gap-section">
+//         <div className="text-center">
+//           <h1 className="text-5xl text-theme-chat-assistant-text mb-4">
+//             Ready to <span className="font-serif italic">Nerd</span> out?
+//           </h1>
+//         </div>
+//         <SignInForm />
+//       </div>
+//     );
+
+// }
+>>>>>>> origin/main

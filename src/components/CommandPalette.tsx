@@ -22,7 +22,10 @@ import {
   Trash2,
   Share2,
   MoreHorizontal,
+<<<<<<< HEAD
   Bot,
+=======
+>>>>>>> origin/main
 } from "lucide-react";
 import { format, isToday, isYesterday, isThisWeek, startOfDay } from "date-fns";
 import { Id } from "../../convex/_generated/dataModel";
@@ -32,7 +35,10 @@ interface CommandPaletteProps {
   onSelectChat: (chatId: Id<"chats">) => void;
   onCreateChat: () => Promise<void>;
   onNavigateToThemes?: () => void;
+<<<<<<< HEAD
   onNavigateToAgentPlan?: () => void;
+=======
+>>>>>>> origin/main
   onSignOut?: () => void;
 }
 
@@ -60,7 +66,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onSelectChat,
   onCreateChat,
   onNavigateToThemes,
+<<<<<<< HEAD
   onNavigateToAgentPlan,
+=======
+>>>>>>> origin/main
   onSignOut,
 }) => {
   const {
@@ -325,6 +334,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         searchText: "themes customize appearance",
       },
       {
+<<<<<<< HEAD
         id: "agent-plan",
         title: "Agent Plan",
         subtitle: "View and manage agent workflow",
@@ -339,6 +349,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         searchText: "agent plan workflow tasks",
       },
       {
+=======
+>>>>>>> origin/main
         id: "api-key",
         title: "API Key",
         subtitle: currentApiKey ? "Update your API key" : "Set your API key",
@@ -385,7 +397,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     onSelectChat,
     onCreateChat,
     onNavigateToThemes,
+<<<<<<< HEAD
     onNavigateToAgentPlan,
+=======
+>>>>>>> origin/main
     onSignOut,
     closePalette,
   ]);

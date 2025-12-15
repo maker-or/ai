@@ -1,7 +1,11 @@
 import { v } from "convex/values";
 import { query, mutation, internalMutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+<<<<<<< HEAD
 // import { Id } from "./_generated/dataModel";
+=======
+import { Id } from "./_generated/dataModel";
+>>>>>>> origin/main
 
 export const getMessages = query({
   args: {
@@ -222,6 +226,7 @@ export const getLastMessageInChat = query({
     return messages[0] ?? null;
   },
 });
+<<<<<<< HEAD
 
 export const signalProcessingComplete = mutation({
   args: {
@@ -277,3 +282,5 @@ export const getCompleteResponse = query({
     }
   },
 });
+=======
+>>>>>>> origin/main

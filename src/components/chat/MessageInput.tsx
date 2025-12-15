@@ -65,6 +65,10 @@ export const MessageInput = memo(
         console.log(`🚀 Sending message with web search: ${webActive}`);
         onSendMessage(trimmedMessage, webActive);
         setMessage(""); // Clear the input after sending
+<<<<<<< HEAD
+=======
+        // Don't reset webActive - keep it for the user to see and decide
+>>>>>>> origin/main
       }
     }, [onSendMessage, disabled, isLoading, webActive]);
 
@@ -112,6 +116,7 @@ export const MessageInput = memo(
                 </div>
 
                 {/* Globe Icon */}
+<<<<<<< HEAD
                 <div
                   className="relative cursor-pointer"
                   onClick={handleToggleWeb}
@@ -120,6 +125,12 @@ export const MessageInput = memo(
                       ? "Web search enabled - Click to disable"
                       : "Enable web search for current context"
                   }
+=======
+                <div 
+                  className="relative cursor-pointer" 
+                  onClick={handleToggleWeb}
+                  title={webActive ? "Web search enabled - Click to disable" : "Enable web search for current context"}
+>>>>>>> origin/main
                 >
                   <Globe
                     className={`transition-all duration-200 ${
@@ -127,7 +138,13 @@ export const MessageInput = memo(
                         ? "text-theme-accent scale-110" // Active color with slight scale
                         : "text-gray-400 hover:text-gray-600" // Inactive color with hover
                     } ${isLoading && webActive ? "animate-spin" : ""}`} // Spinning when searching
+<<<<<<< HEAD
                   />
+=======
+ 
+                  />
+
+>>>>>>> origin/main
                 </div>
               </div>
 
