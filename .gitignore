@@ -11,19 +11,13 @@ node_modules
 dist
 dist-ssr
 *.local
-<<<<<<< HEAD
 
 # Ignore all env files
 .env
 .env.*
 .env.local
 
-=======
-.env.*
-.env.local
 
-
->>>>>>> origin/main
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

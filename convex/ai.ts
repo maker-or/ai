@@ -4,13 +4,10 @@ import { v } from "convex/values";
 import { action } from "./_generated/server";
 import { api, internal } from "./_generated/api";
 import { getAuthUserId } from "@convex-dev/auth/server";
-<<<<<<< HEAD
 import { getEmbedding } from "../utils/embeddings";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { createGroq } from "@ai-sdk/groq";
 import { type ConvertibleMessage } from "../utils/types";
-=======
->>>>>>> origin/main
 import OpenAI from "openai";
 import Exa from "exa-js";
 
@@ -33,40 +30,27 @@ export const streamChatCompletion = action({
     webSearch: v.optional(v.boolean()),
   },
   handler: async (ctx, args): Promise<any> => {
-<<<<<<< HEAD
     console.log(
       `🚀 streamChatCompletion called with webSearch=${args.webSearch}`,
     );
     console.log(`📝 Full args received:`, JSON.stringify(args, null, 2));
 
-=======
-    console.log(`🚀 streamChatCompletion called with webSearch=${args.webSearch}`);
-    console.log(`📝 Full args received:`, JSON.stringify(args, null, 2));
-    
->>>>>>> origin/main
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
     // Get user's stored API key
     const decryptedKey = await ctx.runQuery(api.saveApiKey.getkey, {});
 
-<<<<<<< HEAD
     const groqKey = process.env.GROQ_API_KEY || "";
 
     let openRouterKey = decryptedKey || "";
     const pineconekey = process.env.PINECONE_API_KEY;
-=======
-    let openRouterKey = decryptedKey || "";
->>>>>>> origin/main
 
     // Fallback to environment variable if no user key is stored
     if (!openRouterKey) {
       openRouterKey = process.env.OPENROUTER_API_KEY || "";
     }
-<<<<<<< HEAD
     const helicone = process.env.HELICONE_API_KEY || "";
-=======
->>>>>>> origin/main
 
     if (!openRouterKey) {
       throw new Error(
@@ -74,7 +58,6 @@ export const streamChatCompletion = action({
       );
     }
 
-<<<<<<< HEAD
     if (!groqKey) {
       throw new Error(
         "Groq API key is required. Please add your API key in settings.",
@@ -87,8 +70,6 @@ export const streamChatCompletion = action({
       );
     }
 
-=======
->>>>>>> origin/main
     // Validate API key format
     if (!openRouterKey.startsWith("sk-")) {
       throw new Error(
@@ -96,13 +77,11 @@ export const streamChatCompletion = action({
       );
     }
 
-<<<<<<< HEAD
     const pinecone = new Pinecone({
       apiKey: pineconekey,
     });
 
-=======
->>>>>>> origin/main
+
     const prompt = await ctx.runQuery(api.users.getPrompt, {});
 
     console.log(`🔍 Web search requested: ${args.webSearch}`);
@@ -115,23 +94,17 @@ export const streamChatCompletion = action({
         try {
           // Check if EXA_API_KEY is available
           const exaApiKeyValue = process.env.EXA_API_KEY;
-<<<<<<< HEAD
           console.log(
             "EXA_API_KEY status:",
             exaApiKeyValue ? "Available" : "Missing",
           );
 
-=======
-          console.log("EXA_API_KEY status:", exaApiKeyValue ? "Available" : "Missing");
-          
->>>>>>> origin/main
           if (!exaApiKeyValue) {
             throw new Error(
               "EXA_API_KEY environment variable is required for web search",
             );
           }
 
-<<<<<<< HEAD
           console.log(
             "Starting web search for:",
             userMessage.content.substring(0, 100) + "...",
@@ -140,20 +113,12 @@ export const streamChatCompletion = action({
           const exa = new Exa(exaApiKeyValue);
           console.log("Exa client created successfully");
 
-=======
-          console.log("Starting web search for:", userMessage.content.substring(0, 100) + "...");
-          
-          const exa = new Exa(exaApiKeyValue);
-          console.log("Exa client created successfully");
-          
->>>>>>> origin/main
           const response = await exa.searchAndContents(userMessage.content, {
             type: "neural",
             numResults: 3,
             text: true,
             highlights: {
               numSentences: 3,
-<<<<<<< HEAD
               query: userMessage.content,
             },
           });
@@ -162,31 +127,17 @@ export const streamChatCompletion = action({
           console.log("Web search response received:", {
             resultsCount: response.results?.length || 0,
             autopromptString: response.autopromptString,
-=======
-              query: userMessage.content
-            }
-          });
-          console.log("Exa search completed successfully");
-          
-          console.log("Web search response received:", {
-            resultsCount: response.results?.length || 0,
-            autopromptString: response.autopromptString
->>>>>>> origin/main
           });
 
           let searchResults = "";
           if (response.results && response.results.length > 0) {
             searchResults = response.results
               .map((r: any, i: number) => {
-<<<<<<< HEAD
                 const content =
                   r.text ||
                   r.highlights?.join(" ") ||
                   r.snippet ||
                   "No content available";
-=======
-                const content = r.text || r.highlights?.join(" ") || r.snippet || "No content available";
->>>>>>> origin/main
                 const title = r.title || "Untitled";
                 const url = r.url || "No URL";
                 return `## Result ${i + 1}: ${title}\nURL: ${url}\nContent: ${content}`;
@@ -204,14 +155,8 @@ export const streamChatCompletion = action({
               content: `Web search results for "${userMessage.content}":\n\n${searchResults}\n\nPlease use this information to provide a comprehensive answer.`,
             },
           ];
-<<<<<<< HEAD
 
           console.log("Web search results added to context successfully");
-=======
-          
-          console.log("Web search results added to context successfully");
-          
->>>>>>> origin/main
         } catch (error) {
           console.error("Web search error:", error);
           console.error("Error details:", {
@@ -219,14 +164,9 @@ export const streamChatCompletion = action({
             stack: error instanceof Error ? error.stack : undefined,
             name: error instanceof Error ? error.name : undefined,
           });
-<<<<<<< HEAD
           const errorMessage =
             error instanceof Error ? error.message : "Unknown error";
 
-=======
-          const errorMessage = error instanceof Error ? error.message : "Unknown error";
-          
->>>>>>> origin/main
           args.messages = [
             ...args.messages,
             {
@@ -277,7 +217,6 @@ export const streamChatCompletion = action({
     try {
       // OpenRouter client - use the retrieved API key
       const client = new OpenAI({
-<<<<<<< HEAD
         baseURL: "https://openrouter.helicone.ai/api/v1",
         apiKey: openRouterKey,
         defaultHeaders: {
@@ -292,22 +231,12 @@ export const streamChatCompletion = action({
         baseURL: "https://api.groq.com/openai/v1",
       });
 
-=======
-        baseURL: "https://openrouter.ai/api/v1",
-        apiKey: openRouterKey,
-        defaultHeaders: {
-          "HTTP-Referer": "https://localhost:3000", // Optional: for OpenRouter analytics
-          "X-Title": "AI Chat App", // Optional: for OpenRouter analytics
-        },
-      });
 
->>>>>>> origin/main
       const allMessages = [...args.messages];
       if (prompt) {
         allMessages.unshift({ role: "system", content: prompt });
       }
 
-<<<<<<< HEAD
       const embeddings = await getEmbedding(
         allMessages.map((msg) => msg.content).join(" "),
       );
@@ -341,14 +270,6 @@ export const streamChatCompletion = action({
         messages: allMessages,
         stream: true,
         temperature: 0.7,
-=======
-      const response = await client.chat.completions.create({
-        model: args.model,
-        messages: allMessages,
-        stream: true,
-        temperature: 0.7,
-        max_tokens: 4096,
->>>>>>> origin/main
       });
 
       console.log("OpenAI response created successfully");
@@ -440,13 +361,8 @@ export const getAvailableModels = action({
     // Return only the two supported models
     return [
       {
-<<<<<<< HEAD
         id: "moonshotai/kimi-k2:free",
         name: "Kimi-k2",
-=======
-        id: "nvidia/llama-3.3-nemotron-super-49b-v1:free",
-        name: "Llama 3.3 Nemotron",
->>>>>>> origin/main
         description: "Advanced open-source model by NVIDIA",
       },
       {
@@ -456,28 +372,18 @@ export const getAvailableModels = action({
       },
 
       {
-<<<<<<< HEAD
         id: "openrouter/horizon-beta",
-=======
-        id: "openai/gpt-4.1",
->>>>>>> origin/main
         name: "GPT-4.1",
         description: "Advanced open-source model by openai",
       },
       {
-<<<<<<< HEAD
         id: "z-ai/glm-4.5-air:free",
         name: "GLM-4.5",
-=======
-        id: "anthropic/claude-sonnet-4",
-        name: "claude-sonnet-4",
->>>>>>> origin/main
         description: "Advanced open-source model by openai",
       },
     ];
   },
 });
-<<<<<<< HEAD
 
 export const test = action({
   args: {},
@@ -485,5 +391,3 @@ export const test = action({
     return "This is a test function.";
   },
 });
-=======
->>>>>>> origin/main

@@ -1,12 +1,7 @@
 import { v } from "convex/values";
-<<<<<<< HEAD
-import { query, mutation } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
-=======
 import { query, mutation, internalMutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { Id } from "./_generated/dataModel";
->>>>>>> origin/main
 
 export const listChats = query({
   args: {},
@@ -20,17 +15,10 @@ export const listChats = query({
       .order("desc")
       .collect();
 
-<<<<<<< HEAD
     return chats.sort((a, b) => {
       if (a.pinned === b.pinned) return 0;
       return a.pinned ? -1 : 1;
     });
-=======
-    return chats.sort((a,b) => {
-      if(a.pinned === b.pinned) return 0;
-      return a.pinned ? -1:1;
-    })
->>>>>>> origin/main
   },
 });
 
@@ -39,26 +27,15 @@ export const getChat = query({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     const chat = await ctx.db.get(args.chatId);
-<<<<<<< HEAD
 
     if (!chat) return null;
 
-=======
-    
-    if (!chat) return null;
-    
->>>>>>> origin/main
     // Check if user owns the chat or if it's shared
     if (chat.userId !== userId && !chat.isShared) {
       return null;
     }
 
-<<<<<<< HEAD
     return chat;
-=======
-    return chat
-    
->>>>>>> origin/main
   },
 });
 
@@ -93,11 +70,7 @@ export const createChat = mutation({
       systemPrompt: args.systemPrompt,
       createdAt: now,
       updatedAt: now,
-<<<<<<< HEAD
       pinned: false,
-=======
-      pinned : false,
->>>>>>> origin/main
     });
 
     return chatId;
@@ -123,12 +96,8 @@ export const updateChat = mutation({
     const updates: any = { updatedAt: Date.now() };
     if (args.title !== undefined) updates.title = args.title;
     if (args.model !== undefined) updates.model = args.model;
-<<<<<<< HEAD
     if (args.systemPrompt !== undefined)
       updates.systemPrompt = args.systemPrompt;
-=======
-    if (args.systemPrompt !== undefined) updates.systemPrompt = args.systemPrompt;
->>>>>>> origin/main
 
     await ctx.db.patch(args.chatId, updates);
   },
@@ -200,11 +169,7 @@ export const searchChats = query({
     const chats = await ctx.db
       .query("chats")
       .withSearchIndex("search_title", (q) =>
-<<<<<<< HEAD
         q.search("title", args.query).eq("userId", userId),
-=======
-        q.search("title", args.query).eq("userId", userId)
->>>>>>> origin/main
       )
       .take(20);
 
@@ -271,7 +236,6 @@ export const prefetchChatData = query({
   },
 });
 
-<<<<<<< HEAD
 export const pinned = mutation({
   args: { chatId: v.id("chats") },
   handler(ctx, args) {
@@ -285,19 +249,3 @@ export const unpinned = mutation({
     void ctx.db.patch(args.chatId, { pinned: false });
   },
 });
-=======
-
-export const pinned = mutation({
-  args:{chatId:v.id("chats")},
- handler(ctx, args) {
-      ctx.db.patch(args.chatId,{pinned:true});
- },
-})
-
-export const unpinned = mutation({
-  args:{chatId:v.id("chats")},
- handler(ctx, args) {
-      ctx.db.patch(args.chatId,{pinned:false});
- },
-})
->>>>>>> origin/main
