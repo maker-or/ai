@@ -139,6 +139,8 @@ export const deleteMessage = mutation({
       throw new Error("Unauthorized");
     }
 
+    console.log("this is the change")
+
     await ctx.db.patch(args.messageId, { isActive: false });
   },
 });
