@@ -17,6 +17,7 @@ import type * as ai from "../ai.js";
 import type * as auth from "../auth.js";
 import type * as branches from "../branches.js";
 import type * as chats from "../chats.js";
+import type * as cleanup from "../cleanup.js";
 import type * as http from "../http.js";
 import type * as messages from "../messages.js";
 import type * as open from "../open.js";
@@ -27,6 +28,7 @@ import type * as saveApiKey from "../saveApiKey.js";
 import type * as sync from "../sync.js";
 import type * as test from "../test.js";
 import type * as testWebSearch from "../testWebSearch.js";
+import type * as transfer from "../transfer.js";
 import type * as users from "../users.js";
 
 /**
@@ -42,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   branches: typeof branches;
   chats: typeof chats;
+  cleanup: typeof cleanup;
   http: typeof http;
   messages: typeof messages;
   open: typeof open;
@@ -52,6 +55,7 @@ declare const fullApi: ApiFromModules<{
   sync: typeof sync;
   test: typeof test;
   testWebSearch: typeof testWebSearch;
+  transfer: typeof transfer;
   users: typeof users;
 }>;
 export declare const api: FilterApi<

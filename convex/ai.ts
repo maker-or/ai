@@ -6,6 +6,7 @@ import { api, internal } from "./_generated/api";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { getEmbedding } from "../utils/embeddings";
 import { Pinecone } from "@pinecone-database/pinecone";
+import { createGroq } from "@ai-sdk/groq";
 import { type ConvertibleMessage } from "../utils/types";
 import OpenAI from "openai";
 import Exa from "exa-js";
@@ -40,6 +41,8 @@ export const streamChatCompletion = action({
     // Get user's stored API key
     const decryptedKey = await ctx.runQuery(api.saveApiKey.getkey, {});
 
+    const groqKey = process.env.GROQ_API_KEY || "";
+
     let openRouterKey = decryptedKey || "";
     const pineconekey = process.env.PINECONE_API_KEY;
 
@@ -52,6 +55,12 @@ export const streamChatCompletion = action({
     if (!openRouterKey) {
       throw new Error(
         "OpenRouter API key is required. Please add your API key in settings.",
+      );
+    }
+
+    if (!groqKey) {
+      throw new Error(
+        "Groq API key is required. Please add your API key in settings.",
       );
     }
 
@@ -216,6 +225,11 @@ export const streamChatCompletion = action({
         },
       });
 
+      const groqClient = new OpenAI({
+        apiKey: groqKey,
+        baseURL: "https://api.groq.com/openai/v1",
+      });
+
       const allMessages = [...args.messages];
       if (prompt) {
         allMessages.unshift({ role: "system", content: prompt });
@@ -224,7 +238,8 @@ export const streamChatCompletion = action({
       const embeddings = await getEmbedding(
         allMessages.map((msg) => msg.content).join(" "),
       );
-      const index = pinecone.index("algorithm");
+
+      const index = pinecone.index("design");
       const Semantic_search = await index.namespace("__default__").query({
         vector: embeddings,
         topK: 5,
@@ -243,13 +258,13 @@ export const streamChatCompletion = action({
       // Add the retrieved context as a system message
       if (resultsString) {
         allMessages.unshift({
-          role: "system",
+          role: "assistant",
           content: `Relevant context from knowledge base:\n\n${resultsString} when using this make sure that you also specify the sources at the end of the respose`,
         });
       }
 
-      const response = await client.chat.completions.create({
-        model: args.model || "google/gemini-2.5-flash-lite",
+      const response = await groqClient.chat.completions.create({
+        model: "openai/gpt-oss-120b",
         messages: allMessages,
         stream: true,
         temperature: 0.7,
